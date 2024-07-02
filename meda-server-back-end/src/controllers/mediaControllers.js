@@ -3,11 +3,29 @@ module.exports = (dbObj, upload) =>{
     const path = require('path');
     const db = dbObj.DB;
 
-    const getMedia = (req, res) =>{
-        const user = req.query.user;
+    const getUsersID = (email) =>{
+        return new Promise((resolve, reject) =>{
+            const sql = `SELECT id FROM User WHERE email = ?`;
+            db.get(sql, [email], (err, row)=>{
+                if(err) reject(err.message);
+                if(!row) reject("User not found!");
+                resolve(row.id);
+            });
+        })
+    }
 
-        const sql = 'SELECT * FROM Media WHERE creator = ?;';
-        db.all(sql, [user], (err, rows)=>{
+    const getMedia = async (req, res) =>{
+        console.log('Hit getMedia controller');
+        const email = req.query.email;
+
+        let userID = await getUsersID(email);
+        if(!userID){
+            console.error("User not found!");
+            return;
+        }
+
+        const sql = 'SELECT * FROM UserMedia WHERE user_id = ?';
+        db.all(sql, [userID], (err, rows)=>{
             if(err){
                 return console.error(err.message);
             }else{
@@ -16,27 +34,36 @@ module.exports = (dbObj, upload) =>{
         });
     };
 
-    const postMedia = (req, res) =>{
+    const postMedia = async (req, res) =>{
         console.log('Hit postMedia controller');
         if(!req.file) {
             console.error('File failed to upload');
             res.send('File failed to upload');
         }
         const file = req.file;
-        const creator = req.body.creator;
-        console.log(creator);
+        const email = req.body.email;
+        console.log(email);
         console.log(file);
 
-        sql = 'INSERT INTO Media (name, path, date_added, ext, creator, og_name) VALUES (?,?,?,?,?,?)'
+        let userID = await getUsersID(email);
+        if(!userID){
+            console.error("User not found!");
+            return;
+        }
+
+        //Scalar query for getting the id of the user given the email
+        sql = `
+        INSERT INTO UserMedia (user_id, name, path, date_added, ext, og_name) 
+        VALUES (?,?,?,?,?,?)`;
         const dateStr = new Date().toISOString();
         const partedName = file.originalname.split('.');
         const fileExt = partedName[partedName.length - 1];
 
         //When server is actually active, change the path to be relative and include the server url at beginning.
         //also keep files in a static folder
-        const params = [file.filename, path.resolve(file.path), dateStr, fileExt, creator, file.originalname];
+        const params = [userID, file.filename, path.resolve(file.path), dateStr, fileExt, file.originalname];
 
-        var self = db.run(sql, params, (err)=>{
+        db.run(sql, params, (err)=>{
             if(err){
                 //Deletes the file if there was an issue with the query
                 fs.unlinkSync(file.path,(err) => {
@@ -45,8 +72,8 @@ module.exports = (dbObj, upload) =>{
                 });
                 return console.error(err.message);
             }else{
-                sql = 'SELECT * FROM Media WHERE creator = ? AND og_name = ?';
-                db.get(sql, [creator, file.originalname], (err, row) => {
+                sql = 'SELECT * FROM UserMedia WHERE user_id = ? AND og_name = ?';
+                db.get(sql, [userID, file.originalname], (err, row) => {
                     if (err) {
                         return console.error(err.message);
                     }
@@ -58,17 +85,20 @@ module.exports = (dbObj, upload) =>{
         });
     };
 
-    const putMedia = (req, res) =>{
+    const putMedia = async (req, res) =>{
 
     };
 
-    const deleteMedia = (req, res) =>{
-        const creator = req.query.creator;
+    const deleteMedia = async (req, res) =>{
+        const email = req.query.email;
         const ogName = req.query.ogName;
-        console.log(`CREATOR: ${creator}, OGNAME: ${ogName}`);
+        console.log(`EMAIL: ${email}, OGNAME: ${ogName}`);
+
+        const userID = getUsersID(email);
+
         let filePath = "";
-        let sql = "SELECT path FROM Media WHERE creator=? AND og_name=?";
-        const params = [creator, ogName];
+        let sql = "SELECT path FROM UserMedia WHERE user_id=? AND og_name=?";
+        const params = [userID, ogName];
 
         //Do query to get the file path
         db.get(sql, params, (err, row)=>{
@@ -77,7 +107,7 @@ module.exports = (dbObj, upload) =>{
             filePath = row.path;
             console.log(filePath);
         });
-        sql = 'DELETE FROM Media WHERE creator=? AND og_name=?';
+        sql = 'DELETE FROM UserMedia WHERE user_id=? AND og_name=?';
         db.run(sql, params, (err) =>{
             if(err){
                 res.status(500).send('Could not remove the specified file');

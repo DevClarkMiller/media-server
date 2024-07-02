@@ -18,15 +18,10 @@ const Menu = () =>{
 
     const uploadFile = async (e) =>{
         e.preventDefault();
-
-        console.log('Submit event request');
-
         if(newFile){
-            alert('File now going to upload!');
-
             const formData = new FormData();
             formData.append('file', newFile);
-            formData.append('creator', 'clark');
+            formData.append('email', 'clarkmillermail@gmail.com');
 
             const config = {
                 headers: {

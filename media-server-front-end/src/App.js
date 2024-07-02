@@ -15,7 +15,7 @@ function App() {
     //On the first render, retrieve all of the users files
     useEffect(() =>{
         const getFiles = async () =>{
-            const response = await fetchAll.get('/media', {user: "clark"});
+            const response = await fetchAll.get('/media', {email: "clarkmillermail@gmail.com"});
             if(response){
               setFiles(response.data);
             }
@@ -25,7 +25,7 @@ function App() {
     }, []);
 
   return (
-    <div className="App flex flex-col items-center bg-deepBlack min-h-screen gap-5">
+    <div className="App flex flex-col items-center bg-deepBlack min-h-screen gap-5 pt-5">
       <FileContext.Provider value={{files, setFiles}}>
         <Header />
         <Routes>
