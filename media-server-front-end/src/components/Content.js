@@ -1,7 +1,13 @@
+
+//Components
+import UserFiles from "./UserFiles";
+import Menu from "./Menu";
+
 const Content = () =>{
     return(
-        <main>
-            
+        <main className="w-full p-5 flex flex-col items-center">
+            <Menu />
+            <UserFiles />
         </main>
     );
 }

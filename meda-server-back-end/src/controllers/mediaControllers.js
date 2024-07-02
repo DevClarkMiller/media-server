@@ -6,8 +6,8 @@ module.exports = (dbObj, upload) =>{
     const getMedia = (req, res) =>{
         const user = req.query.user;
 
-        const sql = 'SELECT * FROM Media;';
-        db.all(sql, [], (err, rows)=>{
+        const sql = 'SELECT * FROM Media WHERE creator = ?;';
+        db.all(sql, [user], (err, rows)=>{
             if(err){
                 return console.error(err.message);
             }else{
@@ -17,14 +17,17 @@ module.exports = (dbObj, upload) =>{
     };
 
     const postMedia = (req, res) =>{
-        if(!req.file) res.send('File failed to upload');
+        console.log('Hit postMedia controller');
+        if(!req.file) {
+            console.error('File failed to upload');
+            res.send('File failed to upload');
+        }
         const file = req.file;
         const creator = req.body.creator;
         console.log(creator);
         console.log(file);
 
         sql = 'INSERT INTO Media (name, path, date_added, ext, creator, og_name) VALUES (?,?,?,?,?,?)'
-
         const dateStr = new Date().toISOString();
         const partedName = file.originalname.split('.');
         const fileExt = partedName[partedName.length - 1];
@@ -33,7 +36,7 @@ module.exports = (dbObj, upload) =>{
         //also keep files in a static folder
         const params = [file.filename, path.resolve(file.path), dateStr, fileExt, creator, file.originalname];
 
-        db.run(sql, params, (err)=>{
+        var self = db.run(sql, params, (err)=>{
             if(err){
                 //Deletes the file if there was an issue with the query
                 fs.unlinkSync(file.path,(err) => {
@@ -42,11 +45,17 @@ module.exports = (dbObj, upload) =>{
                 });
                 return console.error(err.message);
             }else{
-                console.log('Successfully inserted file!');
+                sql = 'SELECT * FROM Media WHERE creator = ? AND og_name = ?';
+                db.get(sql, [creator, file.originalname], (err, row) => {
+                    if (err) {
+                        return console.error(err.message);
+                    }
+                    console.log('Newly inserted record:', row);
+                    res.json(row);
+                    // Return or use the newly inserted record as needed
+                });
             }
         });
-
-        res.send('Success!');
     };
 
     const putMedia = (req, res) =>{
@@ -62,11 +71,10 @@ module.exports = (dbObj, upload) =>{
         const params = [creator, ogName];
 
         //Do query to get the file path
-        db.all(sql, params, (err, rows)=>{
+        db.get(sql, params, (err, row)=>{
             if(err) return console.error(err.message);
-            const filePathObj = rows[0];
-            if(!filePathObj) return console.error("File not found!");
-            filePath = filePathObj.path;
+            if(!row) return console.error("File not found!");
+            filePath = row.path;
             console.log(filePath);
         });
         sql = 'DELETE FROM Media WHERE creator=? AND og_name=?';
