@@ -11,6 +11,13 @@ export const FileContext = createContext();
 
 function App() {
   const [files, setFiles] = useState([]);
+  const [renderedFiles, setRendererdFiles] = useState([]);
+  const [search, setSearch] = useState("");
+
+  useEffect(() =>{
+    const filteredFiles = files.filter((file) => file.og_name.includes(search));
+    setRendererdFiles(filteredFiles)
+  }, [files, search]);
 
     //On the first render, retrieve all of the users files
     useEffect(() =>{
@@ -20,13 +27,12 @@ function App() {
               setFiles(response.data);
             }
         }
-
         getFiles();
     }, []);
 
   return (
     <div className="App flex flex-col items-center bg-deepBlack min-h-screen gap-5 pt-5">
-      <FileContext.Provider value={{files, setFiles}}>
+      <FileContext.Provider value={{files, setFiles, search, setSearch, renderedFiles, setRendererdFiles}}>
         <Header />
         <Routes>
           <Route path='/' element={<Content />}/>

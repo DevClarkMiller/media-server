@@ -7,10 +7,20 @@ import fetchAll from '../functions/fetch';
 import { FileContext } from "../App";
 
 //Icons
-import { CiCirclePlus } from "react-icons/ci";
+import { CiCirclePlus, CiSearch } from "react-icons/ci";
+
+const SearchBar = ({search, setSearch}) =>{
+    return(
+        <div className="searchDiv flex items-center flex-grow bg-appleGray rounded-2xl">
+            <CiSearch className="text-4xl text-deepBlack"/>
+            <label htmlFor="search"></label>
+            <input className="w-full bg-transparent hover:outline-none focus:outline-none" placeholder="Search Files" id="search" value={search} onChange={(e) => setSearch(e.target.value)}/>
+        </div>
+    );
+}
 
 const Menu = () =>{
-    const {files, setFiles} = useContext(FileContext);
+    const {files, setFiles, search, setSearch} = useContext(FileContext);
     const [newFile, setNewFile] = useState();
 
     const fileRef = useRef();
@@ -49,11 +59,12 @@ const Menu = () =>{
     }
 
     return(
-        <div className="menu w-full flex">
+        <div className="menu w-full flex gap-5">
             <form ref={formRef} onSubmit={uploadFile}>
                 <input onChange={handleChange} className="hidden" ref={fileRef} type="file" />
                 <CiCirclePlus onClick={selectFile} className="text-white text-4xl transition-colors duration-300 hover:text-appleLightBlue hover:cursor-pointer"/>
             </form>
+            <SearchBar search={search} setSearch={setSearch} />            
         </div>
     );
 }

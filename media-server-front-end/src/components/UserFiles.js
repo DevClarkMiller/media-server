@@ -5,21 +5,16 @@ import { FileContext } from "../App";
 
 //Components
 import BoxWrapper from '../mill-comps/components/BoxWrapper';
+import FileTile from "./FileTile";
 
 const UserFiles = () =>{
-    const {files, setFiles} = useContext(FileContext);
-
-    useEffect(() =>{
-        console.log(files);
-    }, [files]);
+    const {renderedFiles, setRendererdFiles} = useContext(FileContext);
 
     return(
         <div className="userFiles flex flex-wrap justify-center">
-            {files&&
-                files.map((file) =>(
-                    <BoxWrapper key={file.og_name} className="!bg-appleGray shadow-md !p-2">
-                        <p>{file.og_name}</p>
-                    </BoxWrapper>
+            {renderedFiles&&
+                renderedFiles.map((file) =>(
+                    <FileTile key={file.og_name} file={file}/>
                 ))
             }
         </div>

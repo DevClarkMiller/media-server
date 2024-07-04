@@ -21,3 +21,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.tran-trans-opac{
+  transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
+}
