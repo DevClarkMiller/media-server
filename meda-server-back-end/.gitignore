@@ -1,0 +1,9 @@
+
+# data
+/uploads
+
+# dependencies
+/node_modules
+
+# secrets
+.env
