@@ -4,6 +4,7 @@
 
 # dependencies
 /node_modules
+/src/media.db
 
 # secrets
 .env
