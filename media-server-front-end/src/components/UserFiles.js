@@ -5,7 +5,7 @@ import { FileContext } from "../App";
 
 //Components
 import BoxWrapper from '../mill-comps/components/BoxWrapper';
-import FileTile from "./FileTile";
+import File from "./File";
 
 const UserFiles = () =>{
     //Context
@@ -16,7 +16,7 @@ const UserFiles = () =>{
         const computedStyle = window.getComputedStyle(element);
         const opacityValue = computedStyle.getPropertyValue('opacity');
         if(opacityValue === "0"){
-            setClass("max-h-0 max-w-0  select-none");
+            setClass("max-h-0 max-w-0 select-none hover:cursor-default");
         }else if(opacityValue === "1"){
             setClass("");
         }
@@ -26,7 +26,7 @@ const UserFiles = () =>{
         <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
             {renderedFiles&&
                 renderedFiles.map((file) =>(
-                    <FileTile checkOpacity={checkOpacity} key={file.og_name} itemView={itemView} file={file}/>
+                    <File checkOpacity={checkOpacity} key={file.og_name} itemView={itemView} file={file}/>
                 ))
             }
         </div>

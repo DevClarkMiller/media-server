@@ -35,3 +35,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.container{
+  @apply rounded-lg;
+  box-shadow: 1px 1px 8px rgba(245, 245, 247, 0.35);
+}
