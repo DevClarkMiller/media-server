@@ -40,7 +40,7 @@ const TileFile = () =>{
     return(
         <>
             <p ref={textRef} className={`nice-trans hover:cursor-pointer ${!hovering&& "!max-h-max !max-w-max"} ${hovering && "opacity-0"} ${textClass}`}>{displayName}</p>
-            <a className="nice-trans bg-black" ref={btnRef} href="https://clarkmiller.ca/publicFiles/resume.pdf"  download={file.og_name}>
+            <a className="nice-trans" ref={btnRef} href="https://clarkmiller.ca/publicFiles/resume.pdf"  download={file.og_name}>
                 <IoCloudDownloadOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-appleLightBlue ${!hovering && "opacity-0 "} ${btnClass}`} />
             </a>
         </>

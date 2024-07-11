@@ -1,11 +1,11 @@
-module.exports = (app, dbObj, upload) =>{
+module.exports = (app, dbObj/*, upload*/) =>{
     const express = require('express');
     const mediaController = require('../controllers/mediaControllers')(dbObj);
     //Middleware that checks if file is able to be downloaded and sets the dir
     const verifyFile = require('../middleware/verifyFile')(dbObj);
     app.route('/media')
         .get(mediaController.getMedia)
-        .post([express.urlencoded({ extended: false }), upload.single('file')], mediaController.postMedia)
+        .post(/*[verifyFile, /*upload.single('file'/],*/ mediaController.postMedia)
         .put(mediaController.putMedia)
         .delete(mediaController.deleteMedia)
 }
