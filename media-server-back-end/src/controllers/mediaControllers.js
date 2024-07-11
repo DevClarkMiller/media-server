@@ -39,20 +39,16 @@ module.exports = (dbObj) =>{
         console.log('Hit postMedia controller');
         let files = req.files;
 
-        if(!Array.isArray(files)){
-            //If not array, convert it to array
-            files = [files];
-            
-        }
-        console.log(files);
-        
+        //If not array, convert it to array
+        if(!Array.isArray(files)) files = [files];
+
         if(!files) {
             console.error('Files failed to upload');
-            return res.send('Files failed to upload');
+            return res.send('No files were uploaded');
         }
 
         const email = req.body.email;
-        console.log(email);
+        console.log(`USERS EMAIL: ${email}`);
 
         let userID = await getUsersID(email);
         if(!userID){
@@ -61,18 +57,23 @@ module.exports = (dbObj) =>{
         }
 
         //Uploads each file
-        for(const file of files){
-            //Scalar query for getting the id of the user given the email
+        for(let fileItem of files){
+            let file = fileItem.file;
+            const fileName = Date.now() + "-" + file.name;
+            // //Scalar query for getting the id of the user given the email
             sql = `
-            INSERT INTO UserMedia (user_id, name, path, date_added, ext, og_name) 
-            VALUES (?,?,?,?,?,?)`;
+            INSERT INTO UserMedia (user_id, name, path, date_added, ext, og_name, mimetype) 
+            VALUES (?,?,?,?,?,?,?)`;
             const dateStr = new Date().toISOString();
-            const partedName = file.originalname.split('.');
+            const partedName = file.name.split('.');
             const fileExt = partedName[partedName.length - 1];
 
             //When server is actually active, change the path to be relative and include the server url at beginning.
             //also keep files in a static folder
-            const params = [userID, file.filename, path.resolve(file.path), dateStr, fileExt, file.originalname];
+
+            const filepath = `C:\\projects\\media-server\\media-server-back-end\\uploads\\${email}\\${fileName}`;
+
+            const params = [userID, fileName, filepath, dateStr, fileExt, file.name, file.mimetype];
 
             db.run(sql, params, async (err)=>{
                 if(err){
@@ -80,14 +81,14 @@ module.exports = (dbObj) =>{
                     res.status(409).send('File with that name already exists!');
                 }else{
                     sql = 'SELECT * FROM UserMedia WHERE user_id = ? AND og_name = ?';
-                    db.get(sql, [userID, file.originalname], (err, row) => {
+                    db.get(sql, [userID, file.name], (err, row) => {
                         if (err) {
                             return console.error(err.message);
                         }
                         console.log('Newly inserted record:', row);
 
                         // Move the file to the desired location
-                        file.mv(`C:\\projects\\media-server\\media-server-back-end\\uploads\\${}`, err => {
+                        file.mv(filepath, err => {
                             if (err)  return res.status(500).send(err);
 
                             // Return or use the newly inserted record as needed
