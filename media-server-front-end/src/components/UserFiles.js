@@ -22,7 +22,7 @@ const UserFiles = () =>{
     }
 
     return(
-        <div className="userFiles flex flex-wrap justify-center">
+        <div className="userFiles flex flex-wrap items-start content-start justify-center">
             {renderedFiles&&
                 renderedFiles.map((file) =>(
                     <FileTile checkOpacity={checkOpacity} key={file.og_name} file={file}/>
