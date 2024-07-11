@@ -7,13 +7,14 @@ import SquareFile from "./FileTypes/SquareFile";
 
 //Icons
 
-import supportedImgs from '../config/supported-imgs.json';
-
 export const FileDetailContext = createContext();
 
 const File = ({checkOpacity, file, itemView}) =>{
     //Memo calcs
-    const isImage = useMemo(() => (supportedImgs.includes(file?.ext)), [supportedImgs, file?.og_name]);
+    const isImage = useMemo(() => (
+        file?.mimetype?.split('/')[0] === "image"
+    ), [file?.mimetype]);
+
 
     const displayName = useMemo(() =>( (file?.og_name?.length < 25) ? file?.og_name : file?.og_name.substring(0, 25) + "..." ), [file]);
 

@@ -59,6 +59,8 @@ module.exports = (dbObj) =>{
         //Uploads each file
         for(let fileItem of files){
             let file = fileItem.file;
+            file.name = file.name.replace(" ", "");
+
             const fileName = Date.now() + "-" + file.name;
             // //Scalar query for getting the id of the user given the email
             sql = `
@@ -71,7 +73,9 @@ module.exports = (dbObj) =>{
             //When server is actually active, change the path to be relative and include the server url at beginning.
             //also keep files in a static folder
 
-            const filepath = `C:\\projects\\media-server\\media-server-back-end\\uploads\\${email}\\${fileName}`;
+            const basepath = `C:\\projects\\media-server\\media-server-back-end\\uploads\\${email}\\`;
+            const filepath = `basepath${fileName}`;
+            fs.mkdirSync(basepath, { recursive: true });    //Creates filepath if it doesn't exist
 
             const params = [userID, fileName, filepath, dateStr, fileExt, file.name, file.mimetype];
 
@@ -89,7 +93,19 @@ module.exports = (dbObj) =>{
 
                         // Move the file to the desired location
                         file.mv(filepath, err => {
-                            if (err)  return res.status(500).send(err);
+                            if (err) {
+                                //Deletes the file from the database if there's an issue
+                                let sql = "DELETE FROM UserMedia WHERE user_id = ? AND og_name = ?";
+                                db.run(sql, [userID, file.name], (err) => {
+                                    if(err){
+                                        console.log(err)
+                                    }else{
+                                        console.log('Deleted broken file from database');
+                                    }
+                                });
+    
+                                return res.status(500).send(err);
+                            }
 
                             // Return or use the newly inserted record as needed
                             res.json(row);
