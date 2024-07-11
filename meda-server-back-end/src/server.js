@@ -11,7 +11,9 @@ app.use(cors());
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
-    destination: `uploads/`,
+    destination: (req, file, res) =>{
+        res(`uploads/${req.body.email}/`);   //Users will have their own folder based off email
+    },
     filename: (req, file, res) => {
         res(null, Date.now() + "-" + file.originalname);
     },

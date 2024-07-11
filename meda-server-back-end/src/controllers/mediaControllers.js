@@ -1,4 +1,4 @@
-module.exports = (dbObj, upload) =>{
+module.exports = (dbObj) =>{
     const fs = require('fs');
     const path = require('path');
     const db = dbObj.DB;
