@@ -28,7 +28,9 @@ const Menu = () =>{
 
     const uploadFile = async (e) =>{
         e.preventDefault();
-        if(newFile){
+        if(!newFile) return;
+
+        try{
             const formData = new FormData();
             formData.append('file', newFile);
             formData.append('email', 'clarkmillermail@gmail.com');
@@ -41,6 +43,11 @@ const Menu = () =>{
             const response = await fetchAll.post('/media', formData, config);
             setFiles([...files, response.data]); //Adds new file to the files state
             setNewFile(null);
+        }catch(err){
+            console.error(err);
+            if(err.response.status === 409){
+                alert("File name conflict");
+            }
         }
     }   
 

@@ -28,7 +28,7 @@ const get = async (path, params) =>{
 
 const post = async (path, data, config) =>{
     try{
-        const response = (config) ? await api.post(path, data) : await api.post(path, data, config);
+        const response = await config ? api.post(path, data, config) : api.post(path, data);
         return response;
     }catch(err){
         verboseErrorOutput(err);
