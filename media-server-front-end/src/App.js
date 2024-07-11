@@ -15,7 +15,11 @@ function App() {
   const [search, setSearch] = useState("");
 
   useEffect(() =>{
-    const filteredFiles = files.filter((file) => file.og_name.includes(search));
+    const filteredFiles = files.filter((file) => {
+      const fileName = file.og_name.toLowerCase().replace(/[\s-]+/g, '');
+      const searchTerm = search.toLowerCase().replace(/[\s-]+/g, '');
+      return fileName.includes(searchTerm);
+    });
     setRendererdFiles(filteredFiles)
   }, [files, search]);
 
