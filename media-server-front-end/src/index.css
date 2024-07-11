@@ -16,6 +16,10 @@
   .tran-trans-opac{
     @apply transition-all duration-300 ease-in-out;
   }
+
+  .nice-trans{
+    @apply transition-all duration-300 ease-in-out;
+  }
 }
 
 body {

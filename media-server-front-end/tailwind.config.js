@@ -11,6 +11,7 @@ module.exports = {
         appleGray: '#F5F5F7',
         appleBlue: '#0077ED',
         appleLightBlue: '#238efa',
+        appleLighterBlue: '#4ba2fa'
       },
       transitionProperty: {
         'visibility' : 'visibility',

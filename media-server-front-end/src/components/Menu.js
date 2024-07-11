@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useRef, useState, useContext, useMemo } from "react";
 import fetchAll from '../functions/fetch';
 
 //Components
@@ -8,21 +8,45 @@ import { FileContext } from "../App";
 
 //Icons
 import { CiCirclePlus, CiSearch } from "react-icons/ci";
+import { RxHamburgerMenu, RxGrid  } from "react-icons/rx";
+
+
+const ViewOptions = ({itemView, setItemView}) =>{
+    const isSquare = useMemo(() => (itemView === "square"), [itemView]);
+
+    const selectedClass = "text-appleBlue hover:text-appleLighterBlue";
+
+    return(
+        <div className="viewOptions w-3/4 flex items-center justify-end">
+            <div className="changeItemView flex items-center text-white text-3xl gap-3">
+                <h3>Display Type</h3>
+                <button onClick={() => setItemView("tile")} className={`tileBtn nice-trans ${!isSquare ? selectedClass: "hover:text-appleLightBlue"}`}><RxHamburgerMenu /></button>
+                <button onClick={() => setItemView("square")} className={`squareBtn nice-trans hover:text-appleLightBlue ${isSquare ? selectedClass : "hover:text-appleLightBlue"}`}><RxGrid /></button>
+                
+            </div>
+        </div>
+    );
+}
 
 const SearchBar = ({search, setSearch}) =>{
     return(
         <div className="searchDiv flex items-center flex-grow bg-appleGray rounded-2xl">
             <CiSearch className="text-4xl text-deepBlack"/>
             <label htmlFor="search"></label>
-            <input className="w-full bg-transparent hover:outline-none focus:outline-none" placeholder="Search Files" id="search" value={search} onChange={(e) => setSearch(e.target.value)}/>
+            <input className="w-full bg-transparent hover:outline-none focus:outline-none" name="search" placeholder="Search Files" id="search" value={search} onChange={(e) => setSearch(e.target.value)}/>
         </div>
     );
 }
 
 const Menu = () =>{
-    const {files, setFiles, search, setSearch} = useContext(FileContext);
+    //Context
+    const {files, setFiles, search, setSearch, itemView, setItemView} = useContext(FileContext);
+
+    //State
     const [newFile, setNewFile] = useState();
 
+
+    //Refs
     const fileRef = useRef();
     const formRef = useRef();
 
@@ -66,12 +90,15 @@ const Menu = () =>{
     }
 
     return(
-        <div className="menu w-full flex gap-5">
-            <form ref={formRef} onSubmit={uploadFile}>
-                <input onChange={handleChange} className="hidden" ref={fileRef} type="file" />
-                <CiCirclePlus onClick={selectFile} className="text-white text-4xl transition-colors duration-300 hover:text-appleLightBlue hover:cursor-pointer"/>
-            </form>
-            <SearchBar search={search} setSearch={setSearch} />            
+        <div className="menu col-flex-center gap-3 w-3/4 lg:w-full">
+            <div className="flex gap-5 w-full lg:w-3/4">
+                <form ref={formRef} onSubmit={uploadFile}>
+                    <input onChange={handleChange} className="hidden" ref={fileRef} type="file" />
+                    <CiCirclePlus onClick={selectFile} className="text-white text-4xl transition-colors duration-300 hover:text-appleLightBlue hover:cursor-pointer"/>
+                </form>
+                <SearchBar search={search} setSearch={setSearch} /> 
+            </div>   
+            <ViewOptions itemView={itemView} setItemView={setItemView} />        
         </div>
     );
 }

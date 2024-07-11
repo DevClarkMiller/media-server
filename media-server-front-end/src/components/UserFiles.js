@@ -8,7 +8,8 @@ import BoxWrapper from '../mill-comps/components/BoxWrapper';
 import FileTile from "./FileTile";
 
 const UserFiles = () =>{
-    const {renderedFiles, setRendererdFiles} = useContext(FileContext);
+    //Context
+    const { renderedFiles, setRendererdFiles, itemView } = useContext(FileContext);
 
     //Func is placed up here for limited rendering
     const checkOpacity = (element, setClass) =>{
@@ -22,10 +23,10 @@ const UserFiles = () =>{
     }
 
     return(
-        <div className="userFiles flex flex-wrap items-start content-start justify-center">
+        <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
             {renderedFiles&&
                 renderedFiles.map((file) =>(
-                    <FileTile checkOpacity={checkOpacity} key={file.og_name} file={file}/>
+                    <FileTile checkOpacity={checkOpacity} key={file.og_name} itemView={itemView} file={file}/>
                 ))
             }
         </div>
