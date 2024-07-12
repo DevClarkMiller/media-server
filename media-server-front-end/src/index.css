@@ -20,6 +20,14 @@
   .nice-trans{
     @apply transition-all duration-300 ease-in-out;
   }
+
+  .max-one-line{
+    @apply text-ellipsis overflow-hidden whitespace-nowrap;
+  }
+
+  .max-max{
+    @apply !max-h-max !max-w-max;
+  }
 }
 
 body {
