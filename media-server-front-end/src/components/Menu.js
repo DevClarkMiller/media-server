@@ -19,10 +19,9 @@ const ViewOptions = ({itemView, setItemView}) =>{
     return(
         <div className="viewOptions w-3/4 flex items-center justify-end">
             <div className="changeItemView flex items-center text-white text-3xl gap-3">
-                <h3>Display Type</h3>
+                <h3 className="hidden lg:inline-block">Display Type</h3>
                 <button onClick={() => setItemView("tile")} className={`tileBtn nice-trans ${!isSquare ? selectedClass: "hover:text-appleLightBlue"}`}><RxHamburgerMenu /></button>
                 <button onClick={() => setItemView("square")} className={`squareBtn nice-trans hover:text-appleLightBlue ${isSquare ? selectedClass : "hover:text-appleLightBlue"}`}><RxGrid /></button>
-                
             </div>
         </div>
     );

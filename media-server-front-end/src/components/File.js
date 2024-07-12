@@ -17,13 +17,22 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
         file?.mimetype?.split('/')[0] === "image"
     ), [file?.mimetype]);
 
+    const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
+        const baseUrl = 'http://localhost:3650/media/download';
+        const queryParams = new URLSearchParams({
+            email: 'clarkmillermail@gmail.com',
+            filename: file.og_name
+        });
+
+        return `${baseUrl}?${queryParams.toString()}`;  //The url in which the file can be accessed
+    }, [file?.og_name]);
+
     const displayName = useMemo(() =>( (file?.og_name?.length < 25) ? file?.og_name : file?.og_name.substring(0, 25) + "..." ), [file]);
 
     const isSquare = useMemo(() => (itemView==="square"), [itemView]);
 
     //State
     const [hovering, setHovering] = useState(false);
-
     
     return(
         <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile}}>
@@ -36,7 +45,7 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
                     }
                     
                     {isImage&&isSquare&&
-                        <img className="w-3/4" src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg" alt={file.og_name}></img>}
+                        <img className="w-3/4" src={fileURL} alt={file.og_name}></img>}
                 </BoxWrapper>
             </div>
         </FileDetailContext.Provider>
