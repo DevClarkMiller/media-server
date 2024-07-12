@@ -7,7 +7,7 @@ import { IoCloudDownloadOutline, IoCloudDownload  } from "react-icons/io5";
 import { FileDetailContext } from "../File";
 
 const SquareFile = () =>{
-    const { hovering, displayName, file, checkOpacity } = useContext(FileDetailContext);
+    const { hovering, displayName, file, checkOpacity, downloadFile } = useContext(FileDetailContext);
 
     //State
     const [textClass, setTextClass] = useState("");
@@ -38,10 +38,8 @@ const SquareFile = () =>{
 
     return(
         <div className="h-10 w-full flex items-center justify-center">
-            <p ref={textRef} className={`nice-trans hover:cursor-pointer ${!hovering&& "!max-h-max !max-w-max"} ${hovering && "opacity-0"} ${textClass}`}>{displayName}</p>
-            <a className="nice-trans" ref={btnRef} href="https://clarkmiller.ca/publicFiles/resume.pdf"  download={file.og_name}>
-                <IoCloudDownloadOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-appleLightBlue ${!hovering && "opacity-0 "} ${btnClass}`} />
-            </a>
+            <p ref={textRef} className={`nice-trans hover:cursor-pointer ${!hovering&& "!max-h-max !max-w-max flex-grow"} ${hovering && "opacity-0"} ${textClass}`}>{displayName}</p>
+            <button ref={btnRef} onClick={() => downloadFile(file.og_name)}><IoCloudDownloadOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-appleLightBlue ${!hovering && "opacity-0 "} ${btnClass}`} /></button>
         </div>
     );
 }

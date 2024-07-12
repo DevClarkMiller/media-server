@@ -1,15 +1,14 @@
 module.exports = (dbObj) =>{
     const fs = require('fs');
-    const path = require('path');
     const db = dbObj.DB;
 
     const getUsersID = (email) =>{
+        console.log('EMAIL: ', email);
         return new Promise((resolve, reject) =>{
             const sql = `SELECT id FROM User WHERE email = ?`;
             db.get(sql, [email], (err, row)=>{
-                if(err) reject(err.message);
-                if(!row) reject("User not found!");
-                console.log(`Found user with the ID: ${row.id}`);
+                if(err) return reject(err.message);
+                if(!row) return reject("User not found!");
                 resolve(row.id);
             });
         })
@@ -25,7 +24,8 @@ module.exports = (dbObj) =>{
             return;
         }
 
-        const sql = 'SELECT * FROM UserMedia WHERE user_id = ?';
+        //Sends only safe data
+        const sql = 'SELECT date_added, ext, og_name, mimetype FROM UserMedia WHERE user_id = ?';
         db.all(sql, [userID], (err, rows)=>{
             if(err){
                 return console.error(err.message);
@@ -74,7 +74,7 @@ module.exports = (dbObj) =>{
             //also keep files in a static folder
 
             const basepath = `C:\\projects\\media-server\\media-server-back-end\\uploads\\${email}\\`;
-            const filepath = `basepath${fileName}`;
+            const filepath = `${basepath}${fileName}`;
             fs.mkdirSync(basepath, { recursive: true });    //Creates filepath if it doesn't exist
 
             const params = [userID, fileName, filepath, dateStr, fileExt, file.name, file.mimetype];
@@ -156,10 +156,38 @@ module.exports = (dbObj) =>{
         res.status(200).send("Successfully removed the file!");
     }
 
+    const downloadMedia = async (req, res) =>{
+        console.log('Hit downloadMedia controller');
+
+        const email = req.query.email;
+        const filename = req.query.filename;
+
+        if(!email || !filename) return res.status(404).send("Email or file not found");
+
+        const userID = await getUsersID(email);
+        if(!userID) return res.status(404).send("User not found");
+
+        //Do query to get the file path
+        const sql = 'SELECT path FROM UserMedia WHERE og_name = ? AND user_id = ?';
+
+        db.get(sql, [filename, userID], (err, row)=>{
+            if(err) return console.error(err.message);
+            if(!row) return res.status(404).send("File not found!");
+            filePath = row.path;
+            console.log(filePath);
+            
+            res.sendFile(filePath, (err) =>{
+                if (err) return ('Error sending file:', err);
+                console.log('File sent!');
+            });
+        });
+    }
+
     return{
         getMedia, 
         postMedia,
         putMedia,
-        deleteMedia
+        deleteMedia,
+        downloadMedia
     };
 }

@@ -1,0 +1,15 @@
+
+# dependencies
+node_modules/
+/node_modules/
+.cache/
+/.cache/
+
+.eslintcache
+*.pack
+
+# server data
+uploads/
+media.db
+
+.env

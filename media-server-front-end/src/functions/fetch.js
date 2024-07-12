@@ -11,14 +11,19 @@ const verboseErrorOutput = (err) =>{
     }  
 }
 
-const get = async (path, params) =>{
+const get = async (path, params, config = {}) =>{
+    config.headers = {
+        ...config.headers,
+        'Accept': 'application/json, text/plain, */*',
+    };
+    
     let response;
     try{
         if(params){
             const fullUrl = path + '?' + new URLSearchParams(params).toString();
-            response = await api.get(fullUrl);   
+            response = await api.get(fullUrl, config);   
         }else{
-            response = await api.get(path);
+            response = await api.get(path, config);
         }
         return response;
     }catch(err){

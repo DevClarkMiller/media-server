@@ -5,5 +5,8 @@ module.exports = (app, dbObj/*, upload*/) =>{
         .get(mediaController.getMedia)
         .post(mediaController.postMedia)
         .put(mediaController.putMedia)
-        .delete(mediaController.deleteMedia)
+        .delete(mediaController.deleteMedia);
+
+    app.route('/media/download')
+        .get(mediaController.downloadMedia)
 }

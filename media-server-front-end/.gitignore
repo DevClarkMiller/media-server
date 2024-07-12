@@ -1,6 +1,0 @@
-
-# dependencies
-**/node_modules
-node_modules/
-/node_modules
-media-server-front-end/node_modules/
