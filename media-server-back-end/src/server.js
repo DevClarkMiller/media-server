@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 
 const sqlDB = require('./database');
-const fs =  require('fs');
 
 const start = async () =>{
     const app = express();

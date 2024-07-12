@@ -4,7 +4,6 @@ import { useContext, useEffect } from "react";
 import { FileContext } from "../App";
 
 //Components
-import BoxWrapper from '../mill-comps/components/BoxWrapper';
 import File from "./File";
 
 //Functions
@@ -26,10 +25,18 @@ const UserFiles = () =>{
         }
     }
 
-    const downloadFile = async (filename) =>{
+    const downloadFile = async (filename, setDownloadState) =>{
         const trackDownloadProgress = (progressEvent) =>{
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setDownloadState(percentCompleted / 100);
             console.log(`Download progress: ${percentCompleted}%`);
+
+            if (percentCompleted === 100 && progressEvent.loaded === progressEvent.total) {
+                // This condition checks if the download is complete successfully
+                setDownloadState(null); // Reset download state after completion
+            } else if (progressEvent.loaded === 0 && progressEvent.total === 0) {
+                setDownloadState(null); // Disables the download bar
+            }
         } 
 
         const options = {

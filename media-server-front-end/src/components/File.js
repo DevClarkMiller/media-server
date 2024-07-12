@@ -1,4 +1,4 @@
-import { useState, useMemo, createContext } from "react";
+import { useState, useMemo, createContext, useRef } from "react";
 
 //Components
 import BoxWrapper from "../mill-comps/components/BoxWrapper";
@@ -46,25 +46,34 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
 
     //State
     const [hovering, setHovering] = useState(false);
-    
+    const [downloadProgress, setDownloadProgress] = useState(null); //For the progress bar
+
+    //Refs
+    const containerRef = useRef();
+
     return(
-        <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile}}>
-            <div className={`w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
-                <BoxWrapper className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&(isImage||isVideo||isAudio)&&"flex-col justify-between"}`}>
-                    {isSquare? 
-                        <SquareFile />
-                    :
-                        <TileFile />
-                    }
-                    
-                    {isImage&&isSquare&&
-                        <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
-                    {isVideo&&isSquare&&
-                        <video className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
-                    {isAudio&&isSquare&&
-                        <div className="size-full flex items-center justify-center flex-grow">
-                            <audio className="w-full h-12 overflow-hidden" src={fileURL} controls />
-                        </div>
+        <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress}}>
+            <div ref={containerRef} className={`w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
+                <BoxWrapper  className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&(isImage||isVideo||isAudio)&&"flex-col justify-between"}`}>
+                    {downloadProgress===null ?
+                        <>
+                            {isSquare? 
+                                <SquareFile />
+                            :
+                                <TileFile />
+                            }
+                            
+                            {isImage&&isSquare&&
+                                <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
+                            {isVideo&&isSquare&&
+                                <video className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
+                            {isAudio&&isSquare&&
+                                <div className="size-full flex items-center justify-center flex-grow">
+                                    <audio className="w-full h-12 overflow-hidden" src={fileURL} controls />
+                                </div>
+                            }
+                        </> :
+                        <progress value={downloadProgress}/>
                     }
                 </BoxWrapper>
             </div>

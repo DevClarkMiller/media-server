@@ -7,7 +7,7 @@ import { IoCloudDownloadOutline, IoCloudDownload  } from "react-icons/io5";
 import { FileDetailContext } from "../File";
 
 const SquareFile = () =>{
-    const { hovering, displayName, file, checkOpacity, downloadFile } = useContext(FileDetailContext);
+    const { hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress } = useContext(FileDetailContext);
 
     //State
     const [textClass, setTextClass] = useState("");
@@ -39,7 +39,7 @@ const SquareFile = () =>{
     return(
         <div className="h-10 w-full flex items-center justify-center">
             <p ref={textRef} className={`nice-trans max-one-line hover:cursor-pointer ${!hovering&& "max-max flex-grow"} ${hovering && "opacity-0"} ${textClass}`}>{displayName}</p>
-            <button ref={btnRef} onClick={() => downloadFile(file.og_name)}><IoCloudDownloadOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-appleLightBlue ${!hovering && "opacity-0 "} ${btnClass}`} /></button>
+            <button ref={btnRef} onClick={() => downloadFile(file.og_name, setDownloadProgress)}><IoCloudDownloadOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-appleLightBlue ${!hovering && "opacity-0 "} ${btnClass}`} /></button>
         </div>
     );
 }
