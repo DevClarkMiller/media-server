@@ -13,5 +13,13 @@ uploads/
 media.db
 
 .env
+
+# frontend
+media-server-front-end/build/
 media-server-front-end/node_modules/*
 media-server-front-end/node_modules/.cache/*
+media-server-front-end/node_modules/.cache/default-development/index.pack.old
+
+# backend
+
+
