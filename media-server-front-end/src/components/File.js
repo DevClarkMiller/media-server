@@ -21,7 +21,8 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
         const baseUrl = 'http://localhost:3650/media/download';
         const queryParams = new URLSearchParams({
             email: 'clarkmillermail@gmail.com',
-            filename: file.og_name
+            filename: file.og_name,
+            isCompressed: true
         });
 
         return `${baseUrl}?${queryParams.toString()}`;  //The url in which the file can be accessed
@@ -37,7 +38,7 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
     return(
         <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile}}>
             <div className={`w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
-                <BoxWrapper className={`container flex items-center justify-center content-start fileTile!bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&"flex-col"}`}>
+                <BoxWrapper className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&isImage&&"flex-col justify-between"}`}>
                     {isSquare? 
                         <SquareFile />
                     :
@@ -45,7 +46,7 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
                     }
                     
                     {isImage&&isSquare&&
-                        <img className="w-3/4" src={fileURL} alt={file.og_name}></img>}
+                        <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
                 </BoxWrapper>
             </div>
         </FileDetailContext.Provider>

@@ -8,5 +8,5 @@ module.exports = (app, dbObj/*, upload*/) =>{
         .delete(mediaController.deleteMedia);
 
     app.route('/media/download')
-        .get(mediaController.downloadMedia)
+        .get(mediaController.downloadMedia);
 }

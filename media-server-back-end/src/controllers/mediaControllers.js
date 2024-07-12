@@ -1,6 +1,7 @@
 module.exports = (dbObj) =>{
     const fs = require('fs');
     const db = dbObj.DB;
+    const sharp = require('sharp');
 
     const getUsersID = (email) =>{
         console.log('EMAIL: ', email);
@@ -161,25 +162,37 @@ module.exports = (dbObj) =>{
 
         const email = req.query.email;
         const filename = req.query.filename;
+        const isCompressed = req.query.isCompressed === 'true';
 
-        if(!email || !filename) return res.status(404).send("Email or file not found");
+        if(!email || !filename || isCompressed === undefined) return res.status(404).send("Email or file not found");
 
         const userID = await getUsersID(email);
         if(!userID) return res.status(404).send("User not found");
 
         //Do query to get the file path
-        const sql = 'SELECT path FROM UserMedia WHERE og_name = ? AND user_id = ?';
+        const sql = 'SELECT path, mimetype FROM UserMedia WHERE og_name = ? AND user_id = ?';
 
         db.get(sql, [filename, userID], (err, row)=>{
-            if(err) return console.error(err.message);
-            if(!row) return res.status(404).send("File not found!");
+            if(err || !row) return console.error(err);
             filePath = row.path;
-            console.log(filePath);
-            
-            res.sendFile(filePath, (err) =>{
-                if (err) return ('Error sending file:', err);
-                console.log('File sent!');
-            });
+            const mimetype = row.mimetype;
+
+            if(isCompressed && mimetype.split('/')[0] === "image"){
+                //For resizing the image if it's supposed to be compressed
+                sharp(filePath)
+                .resize(640, 480)   //Output buffer is 360 x 480
+                .toBuffer((err, buffer) => {
+                    if (err) return res.status(500).send("Error resizing image");
+                    res.contentType(mimetype).send(buffer);
+                    console.log('File sent as compressed!');
+                });
+            }else{
+                //Send uncompressed
+                res.sendFile(filePath, (err) =>{
+                    if (err) return res.status(500).send('Error sending file');
+                    console.log('File sent!');
+                });
+            }
         });
     }
 
@@ -188,6 +201,6 @@ module.exports = (dbObj) =>{
         postMedia,
         putMedia,
         deleteMedia,
-        downloadMedia
+        downloadMedia,
     };
 }
