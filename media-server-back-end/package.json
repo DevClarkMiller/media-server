@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "push-prod": "C:\\projects\\media-server\\media-server-back-end\\push-prod.bat"
   },
   "keywords": [],
   "author": "Clark Miller",

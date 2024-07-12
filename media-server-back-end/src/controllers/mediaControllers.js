@@ -73,7 +73,7 @@ module.exports = (dbObj) =>{
             //When server is actually active, change the path to be relative and include the server url at beginning.
             //also keep files in a static folder
 
-            const basepath = `C:\\projects\\media-server\\media-server-back-end\\uploads\\${email}\\`;
+            const basepath = `/var/drive-backend/src/uploads/${email}/`;
             const filepath = `${basepath}${fileName}`;
             fs.mkdirSync(basepath, { recursive: true });    //Creates filepath if it doesn't exist
 
@@ -148,8 +148,8 @@ module.exports = (dbObj) =>{
                 if(err){
                     res.status(500).send('Could not remove the specified file');
                     return console.log("Couldn't remove file!");
-                    res.status(200).send("Successfully removed the file!");
                 }                
+                res.status(200).send("Successfully removed the file!");
             }); 
         });
     }

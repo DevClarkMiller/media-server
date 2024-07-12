@@ -27,8 +27,14 @@ const UserFiles = () =>{
     }
 
     const downloadFile = async (filename) =>{
+        const trackDownloadProgress = (progressEvent) =>{
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            console.log(`Download progress: ${percentCompleted}%`);
+        } 
+
         const options = {
             responseType: 'blob', // Set response type to blob for file download
+            onDownloadProgress: trackDownloadProgress
           }
 
         const response = await fetchAll.get('/media/download', {

@@ -30,7 +30,7 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
     ), [fileType]);
 
     const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
-        const baseUrl = 'http://localhost:3650/media/download';
+        const baseUrl = 'http://drive.clarkmiller.ca/api/media/download';
         const queryParams = new URLSearchParams({
             email: 'clarkmillermail@gmail.com',
             filename: file.og_name,
