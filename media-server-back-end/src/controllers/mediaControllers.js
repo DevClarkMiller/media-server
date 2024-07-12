@@ -4,7 +4,6 @@ module.exports = (dbObj) =>{
     const sharp = require('sharp');
 
     const getUsersID = (email) =>{
-        console.log('EMAIL: ', email);
         return new Promise((resolve, reject) =>{
             const sql = `SELECT id FROM User WHERE email = ?`;
             db.get(sql, [email], (err, row)=>{
@@ -83,13 +82,11 @@ module.exports = (dbObj) =>{
             db.run(sql, params, async (err)=>{
                 if(err){
                     console.error(err.message);
-                    res.status(409).send('File with that name already exists!');
+                    return res.status(409).send('File with that name already exists!');
                 }else{
                     sql = 'SELECT * FROM UserMedia WHERE user_id = ? AND og_name = ?';
                     db.get(sql, [userID, file.name], (err, row) => {
-                        if (err) {
-                            return console.error(err.message);
-                        }
+                        if (err) return res.status(500).send(err.message);
                         console.log('Newly inserted record:', row);
 
                         // Move the file to the desired location
@@ -151,10 +148,10 @@ module.exports = (dbObj) =>{
                 if(err){
                     res.status(500).send('Could not remove the specified file');
                     return console.log("Couldn't remove file!");
+                    res.status(200).send("Successfully removed the file!");
                 }                
             }); 
         });
-        res.status(200).send("Successfully removed the file!");
     }
 
     const downloadMedia = async (req, res) =>{
@@ -182,15 +179,18 @@ module.exports = (dbObj) =>{
                 sharp(filePath)
                 .resize(640, 480)   //Output buffer is 360 x 480
                 .toBuffer((err, buffer) => {
-                    if (err) return res.status(500).send("Error resizing image");
-                    res.contentType(mimetype).send(buffer);
-                    console.log('File sent as compressed!');
+                    if (err) {
+                        console.log("Error resizing image");
+                        return res.status(500).send("Error resizing image");
+                    }
+                    console.log(`${filename} sent as compressed!`);
+                    return res.contentType(mimetype).send(buffer);
                 });
             }else{
                 //Send uncompressed
                 res.sendFile(filePath, (err) =>{
-                    if (err) return res.status(500).send('Error sending file');
-                    console.log('File sent!');
+                    if (err) return res.status(500).end()/*.send('Error sending file');*/
+                    console.log(`${filename} File sent!`);
                 });
             }
         });

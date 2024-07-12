@@ -17,6 +17,14 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
         file?.mimetype?.split('/')[0] === "image"
     ), [file?.mimetype]);
 
+    const isVideo = useMemo(() => (
+        file?.mimetype?.split('/')[0] === "video"
+    ), [file?.mimetype]);
+
+    const isAudio = useMemo(() => (
+        file?.mimetype?.split('/')[0] === "audio"
+    ), [file?.mimetype]);
+
     const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
         const baseUrl = 'http://localhost:3650/media/download';
         const queryParams = new URLSearchParams({
@@ -38,7 +46,7 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
     return(
         <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile}}>
             <div className={`w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
-                <BoxWrapper className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&isImage&&"flex-col justify-between"}`}>
+                <BoxWrapper className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&(isImage||isVideo||isAudio)&&"flex-col justify-between"}`}>
                     {isSquare? 
                         <SquareFile />
                     :
@@ -47,6 +55,13 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
                     
                     {isImage&&isSquare&&
                         <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
+                    {isVideo&&isSquare&&
+                        <video className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
+                    {isAudio&&isSquare&&
+                        <div className="size-full flex items-center justify-center flex-grow">
+                            <audio className="w-full h-12 overflow-hidden" src={fileURL} controls />
+                        </div>
+                    }
                 </BoxWrapper>
             </div>
         </FileDetailContext.Provider>
