@@ -13,17 +13,21 @@ export const FileDetailContext = createContext();
 
 const File = ({checkOpacity, file, itemView, downloadFile}) =>{
     //Memo calcs
-    const isImage = useMemo(() => (
-        file?.mimetype?.split('/')[0] === "image"
+    const fileType = useMemo(() => (
+        file?.mimetype?.split('/')[0]
     ), [file?.mimetype]);
+
+    const isImage = useMemo(() => (
+        fileType === "image"
+    ), [fileType]);
 
     const isVideo = useMemo(() => (
-        file?.mimetype?.split('/')[0] === "video"
-    ), [file?.mimetype]);
+        fileType === "video"
+    ), [fileType]);
 
     const isAudio = useMemo(() => (
-        file?.mimetype?.split('/')[0] === "audio"
-    ), [file?.mimetype]);
+        fileType === "audio"
+    ), [fileType]);
 
     const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
         const baseUrl = 'http://localhost:3650/media/download';
