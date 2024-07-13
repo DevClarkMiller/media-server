@@ -29,20 +29,21 @@ const UserFiles = () =>{
         const trackDownloadProgress = (progressEvent) =>{
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             setDownloadState(percentCompleted / 100);
-            console.log(`Download progress: ${percentCompleted}%`);
 
+            // This condition checks if the download is complete successfully
             if (percentCompleted === 100 && progressEvent.loaded === progressEvent.total) {
-                // This condition checks if the download is complete successfully
+                console.log("Download complete!");
                 setDownloadState(null); // Reset download state after completion
             } else if (progressEvent.loaded === 0 && progressEvent.total === 0) {
                 setDownloadState(null); // Disables the download bar
             }
+            //console.log(`Download progress: ${percentCompleted}%`);
         } 
 
         const options = {
             responseType: 'blob', // Set response type to blob for file download
-            onDownloadProgress: trackDownloadProgress
-          }
+            onDownloadProgress: trackDownloadProgress,
+        }
 
         const response = await fetchAll.get('/media/download', {
             email: "clarkmillermail@gmail.com",
@@ -53,6 +54,11 @@ const UserFiles = () =>{
         if(!file) return;
 
         fileDownload(file, filename);
+
+        setTimeout(() =>{
+            setDownloadState(null); // Disables the download bar
+            console.log('Download complete!');
+        }, [250]);
     }
     
     return(
