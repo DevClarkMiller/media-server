@@ -18,10 +18,10 @@ module.exports = (dbObj) =>{
         console.log('Hit getMedia controller');
 
         const {account} = req.account;  //Note that it must be destructed here to work properly
+        const userID = account.id;
 
-        let userID = await getUsersID(account.email);
 
-        if(!userID) res.status(404).send("Account not found");
+        if(!userID) return res.status(404).send("Account not found");
 
         //Sends only safe data
         const sql = 'SELECT date_added, ext, og_name, mimetype FROM UserMedia WHERE user_id = ?';
@@ -45,11 +45,12 @@ module.exports = (dbObj) =>{
             console.error('Files failed to upload');
             return res.send('No files were uploaded');
         }
+        const {account} = req.account;
+        const {email, id} = account;
 
-        const email = req.body.email;
         console.log(`USERS EMAIL: ${email}`);
 
-        let userID = await getUsersID(email);
+        const userID = id;
         if(!userID){
             console.error("User not found!");
             return;
@@ -156,19 +157,22 @@ module.exports = (dbObj) =>{
     const downloadMedia = async (req, res) =>{
         console.log('Hit downloadMedia controller');
 
-        const email = req.query.email;
+        if(!req.account) return res.status(404).send("Email or file not found");
+
+        const {account} = req.account;
+        const {email, id} = account;
+
         const filename = req.query.filename;
         const isCompressed = req.query.isCompressed === 'true';
 
         if(!email || !filename || isCompressed === undefined) return res.status(404).send("Email or file not found");
 
-        const userID = await getUsersID(email);
-        if(!userID) return res.status(404).send("User not found");
+        if(!id) return res.status(404).send("User not found");
 
         //Do query to get the file path
         const sql = 'SELECT path, mimetype FROM UserMedia WHERE og_name = ? AND user_id = ?';
 
-        db.get(sql, [filename, userID], (err, row)=>{
+        db.get(sql, [filename, id], (err, row)=>{
             if(err || !row) return console.error(err);
             filePath = row.path;
             const mimetype = row.mimetype;

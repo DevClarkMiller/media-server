@@ -19,7 +19,7 @@ export const LoginProvider = ({children}) =>{
         });
 
         if(!accountData?.data) return;
-        setAccount(accountData?.data);
+        setAccount(accountData?.data.account);
         setLoggedIn(true);
     }
 

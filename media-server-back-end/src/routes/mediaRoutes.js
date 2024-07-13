@@ -4,10 +4,10 @@ module.exports = (app, dbObj/*, upload*/) =>{
     //Middleware that checks if file is able to be downloaded and sets the dir
     app.route('/media')
         .get(cookieJwtAuth, mediaController.getMedia)
-        .post(mediaController.postMedia)
-        .put(mediaController.putMedia)
-        .delete(mediaController.deleteMedia);
+        .post(cookieJwtAuth, mediaController.postMedia)
+        .put(cookieJwtAuth, mediaController.putMedia)
+        .delete(cookieJwtAuth, mediaController.deleteMedia);
 
     app.route('/media/download')
-        .get(mediaController.downloadMedia);
+        .get(cookieJwtAuth, mediaController.downloadMedia);
 }

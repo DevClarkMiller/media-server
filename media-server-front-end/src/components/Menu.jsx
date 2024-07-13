@@ -5,6 +5,7 @@ import fetchAll from '../functions/fetch';
 
 //Context
 import { FileContext } from "../App";
+import { LoginContext } from "../context/LoginContext";
 
 //Icons
 import { CiCirclePlus, CiSearch } from "react-icons/ci";
@@ -40,6 +41,7 @@ const SearchBar = ({search, setSearch}) =>{
 const Menu = () =>{
     //Context
     const {files, setFiles, search, setSearch, itemView, setItemView} = useContext(FileContext);
+    const {account} = useContext(LoginContext);
 
     //State
     const [newFile, setNewFile] = useState();
@@ -51,24 +53,28 @@ const Menu = () =>{
 
     const uploadFile = async (e) =>{
         e.preventDefault();
-        if(!newFile) return;
+        console.log(account);
+        if(!newFile || !account?.email) return;
 
         try{
             const formData = new FormData();
             formData.append('file', newFile);
-            formData.append('email', 'clarkmillermail@gmail.com');
 
             const config = {
                 headers: {
                     'content-type': 'multipart/form-data',
                 },
+                withCredentials: true,
+                credentials: "include"
             };
             const response = await fetchAll.post('/media', formData, config);
+            if(response.status === 500) return alert("Unable to upload file");
+
             setFiles([...files, response.data]); //Adds new file to the files state
             setNewFile(null);
         }catch(err){
             console.error(err);
-            if(err.response.status === 409){
+            if(err?.response.status === 409){
                 alert("File name conflict");
             }
         }

@@ -42,6 +42,9 @@ const UserFiles = () =>{
 
         const options = {
             responseType: 'blob', // Set response type to blob for file download
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+            credentials: "include",
             onDownloadProgress: trackDownloadProgress,
         }
 
@@ -50,7 +53,11 @@ const UserFiles = () =>{
             filename: filename
         }, options); 
 
+        if(!response || response.status === 404) return;
+
         const file = response.data;
+
+        console.log(file);
         if(!file) return;
 
         fileDownload(file, filename);

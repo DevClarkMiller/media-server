@@ -34,7 +34,7 @@ const Login = () =>{
         });
 
         if(!response?.data) return alert('Email or password was incorrect!');
-        setAccount(response.data);
+        setAccount(response.data.account);
         setEmail("");
         setPassword("");
         navigate('/');

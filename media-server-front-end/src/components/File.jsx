@@ -31,11 +31,16 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
 
     const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
         const baseUrl = 'http://drive.clarkmiller.ca/api/media/download';
+        const options = {
+            withCredentials: true,
+            credentials: "include"
+        };
+
         const queryParams = new URLSearchParams({
             email: 'clarkmillermail@gmail.com',
             filename: file.og_name,
             isCompressed: true
-        });
+        }, options);
 
         return `${baseUrl}?${queryParams.toString()}`;  //The url in which the file can be accessed
     }, [file?.og_name]);

@@ -47,7 +47,7 @@ const CreateAccount = () =>{
         });
 
         if(!response?.data) return alert('Unable to create account');
-        setAccount(response.data)
+        setAccount(response.data.account);
 
         dispatchNewAccount({
             type:"RESET_FIELDS"

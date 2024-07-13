@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import {Routes, Route} from 'react-router-dom';
+import {Routes, Route, useNavigate} from 'react-router-dom';
 
 //Components
 import Header from "./components/Header";
@@ -16,6 +16,8 @@ import CreateAccount from './components/account/CreateAccount';
 export const FileContext = createContext();
 
 function App() {
+  const navigate = useNavigate();
+
   //Context
   const {loggedIn, setLoggedIn, account, setAccount, grabAccount} = useContext(LoginContext);
 
@@ -38,6 +40,7 @@ function App() {
 
   //Once user becomes logged in, retrieve all of their files
   useEffect(() =>{
+    if(!account) return;
       const getFiles = async () =>{
           const response = await fetchAll.get('/media', null,
             {
@@ -49,8 +52,9 @@ function App() {
             setFiles(response.data);
           }
       }
+
       getFiles();
-  }, []);
+  }, [account]);
 
   return (
     <div className="App flex flex-col items-center bg-deepBlack min-h-screen gap-5 pt-5">

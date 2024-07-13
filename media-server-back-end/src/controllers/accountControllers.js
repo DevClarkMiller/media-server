@@ -21,6 +21,7 @@ module.exports = (dbObj) =>{
         const account = req.account;
 
         if(!account) return res.status(400).send();
+        delete account.id;  //Removes the id from the return value of this function
         res.json(account);
     }
 
@@ -29,7 +30,7 @@ module.exports = (dbObj) =>{
 
         const {email, password} = req.body;
 
-        let sql = 'SELECT email, password, first_name, last_name FROM User WHERE email = ?';
+        let sql = 'SELECT id, email, password, first_name, last_name FROM User WHERE email = ?';
         try{
             db.get(sql, email, async function(err, row){
                 if(err){
@@ -88,8 +89,10 @@ module.exports = (dbObj) =>{
                 const account = {
                     firstname: firstname,
                     lastname: lastname,
-                    email: email
+                    email: email,
+                    id: this.lastID
                 };
+
 
                 const token = jwt.sign({account: account}, process.env.JWT_SECRET, {expiresIn: "900s"});
                 console.log('NEW TOKEN CREATED!');
