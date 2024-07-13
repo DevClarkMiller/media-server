@@ -9,11 +9,13 @@ const sqlDB = require('./database');
 const start = async () =>{
     const app = express();
     app.use(fileUpload());
-    app.use(bodyParser.json()); // for JSON data
 
     app.use(cors({
-        origin: "*"
+        origin: "http://localhost:3000",
+        credentials: true
     }));
+
+    app.use(bodyParser.json()); // for JSON data
 
     let dbObj = new sqlDB();
     await dbObj.createDB();

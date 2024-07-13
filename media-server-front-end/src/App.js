@@ -1,19 +1,31 @@
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {Routes, Route} from 'react-router-dom';
-import { useEffect, useState } from "react";
-import fetchAll from './functions/fetch';
-import { createContext } from 'react';
+
 
 //Components
 import Header from "./components/Header";
 import Content from "./components/Content";
+import Login from './components/Login';
+
+//Functions
+import fetchAll from './functions/fetch';
+
+//Context
+import {LoginContext} from './context/LoginContext';
 
 export const FileContext = createContext();
 
 function App() {
+  //Context
+  const {loggedIn, setLoggedIn, account, setAccount, grabAccount} = useContext(LoginContext);
+
+  //State
   const [files, setFiles] = useState([]);
   const [renderedFiles, setRendererdFiles] = useState([]);
   const [search, setSearch] = useState("");
   const [itemView, setItemView] = useState("tile"); //Either tile or square
+
+  useEffect(() => {grabAccount()}, []);
 
   useEffect(() =>{
     const filteredFiles = files.filter((file) => {
@@ -24,7 +36,7 @@ function App() {
     setRendererdFiles(filteredFiles)
   }, [files, search]);
 
-  //On the first render, retrieve all of the users files
+  //Once user becomes logged in, retrieve all of their files
   useEffect(() =>{
       const getFiles = async () =>{
           const response = await fetchAll.get('/media', {email: "clarkmillermail@gmail.com"});
@@ -41,6 +53,7 @@ function App() {
         <Header />
         <Routes>
           <Route path='/' element={<Content />}/>
+          <Route path='login' element={<Login />}/>
         </Routes>
       </FileContext.Provider>
     </div>

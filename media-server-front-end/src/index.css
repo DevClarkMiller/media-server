@@ -28,6 +28,18 @@
   .max-max{
     @apply !max-h-max !max-w-max;
   }
+
+  .round-input-black{
+    @apply p-1 rounded-lg text-black;
+  }
+
+  .basic-button{
+    @apply p-3 border border-black;
+  }
+
+  .round-button{
+    @apply basic-button rounded-lg;
+  }
 }
 
 body {
