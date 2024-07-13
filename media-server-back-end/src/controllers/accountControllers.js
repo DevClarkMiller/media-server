@@ -6,6 +6,15 @@ module.exports = (dbObj) =>{
     const db = dbObj.DB;
     require('dotenv').config();
 
+    const verifyPassword = async (pass, hashedPass) =>{
+        try{
+            const match = await bcrypt.compare(pass, hashedPass);
+            return match;
+        }catch(err){
+            return false;
+        }
+    }
+
     const isUserAuth = async (req, res) =>{
         console.log('Hit isUserAuth controller');    
 
@@ -20,20 +29,22 @@ module.exports = (dbObj) =>{
 
         const {email, password} = req.body;
 
-        let sql = "SELECT email, password, fist_name, last_name FROM User WHERE email = ?";
-        let params = [email, password];
+        let sql = 'SELECT email, password, first_name, last_name FROM User WHERE email = ?';
         try{
-            db.get(sql, params, async function(err, row){
+            db.get(sql, email, async function(err, row){
                 if(err){
                     console.error(err);
                     return res.status(404).send("User not found!");
                 }
                 //Then check if the password is valid
-                const passMatches = await verifyPassword(password, user.password);
+                const passMatches = await verifyPassword(password, row.password);
                 if(!passMatches) return res.status(403).send(`Your login details seem to be incorrect`);
 
                 //Token only lasts for 900 seconds which is 15 minutes before expiring
                 const token = jwt.sign({account: row}, process.env.JWT_SECRET, {expiresIn: "900s"});
+                console.log('NEW TOKEN CREATED!');
+
+                delete row.password;    //Removes password for sercurity reasons
                 console.log(row);
 
                 res.cookie("token", token, {

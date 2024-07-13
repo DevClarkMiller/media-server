@@ -2,7 +2,7 @@ const LabelInput = (
     {onChange, value, children, id, type, min, max, inputClassName, labelClassName, required}
 ) => {
     return(
-        <span className="col-flex-center">
+        <span className="col-flex-center gap-1">
             <label 
                 htmlFor={id}
                 className={labelClassName}

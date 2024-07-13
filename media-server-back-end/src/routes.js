@@ -1,3 +1,4 @@
-module.exports = (app, dbObj, upload) =>{
-    require('./routes/mediaRoutes')(app, dbObj, upload);   //Contains routes for media
+module.exports = (app, dbObj) =>{
+    require('./routes/mediaRoutes')(app, dbObj);   //Contains routes for media
+    require('./routes/accountRoutes')(app, dbObj);
 }

@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 
 const cookieJwtAuth = async (req, res, next) =>{
     const token = req.cookies.token;
-    console.log('Hit cookiejwtAuth');
     
     try{
         const account = await jwt.verify(token, process.env.JWT_SECRET);

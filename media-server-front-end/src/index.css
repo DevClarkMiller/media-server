@@ -34,11 +34,17 @@
   }
 
   .basic-button{
-    @apply p-3 border border-black;
+    @apply p-3;
   }
 
   .round-button{
-    @apply basic-button rounded-lg;
+    @apply basic-button rounded-lg font-semibold;
+  }
+
+  .blue-button{
+    @apply bg-appleBlue;
+    @apply hover:bg-appleLightBlue;
+    @apply transition-colors duration-300 ease-in-out;
   }
 }
 

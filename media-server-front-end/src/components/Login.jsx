@@ -18,10 +18,18 @@ const Login = () =>{
     const onLogin = async e =>{
         e.preventDefault();
 
-        const accountData = await fetchAll.post("/", {
+        const response = await fetchAll.post("/account", {
             email: email,
             password: password
+        },
+        {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+            credentials: "include"
         });
+
+        if(!response?.data) return;
+        console.log(response.data);
     }
 
     return(
@@ -48,7 +56,9 @@ const Login = () =>{
                 >Password</LabelInput>
             </div>
 
-            <button className="text-white round-button">Login</button>
+            <button 
+            className="text-white round-button blue-button">
+                Login</button>
         </form>
     );
 }
