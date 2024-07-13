@@ -4,9 +4,9 @@ const cookieJwtAuth = async (req, res, next) =>{
     const token = req.cookies.token;
     
     try{
+        if(!token) throw new Error("Token not found");
         const account = await jwt.verify(token, process.env.JWT_SECRET);
         
-        if(!token) throw new Error("Token not found");
         req.account = account;
         next();
     }catch(err){

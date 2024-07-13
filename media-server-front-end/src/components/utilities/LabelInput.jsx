@@ -1,5 +1,5 @@
 const LabelInput = (
-    {onChange, value, children, id, type, min, max, inputClassName, labelClassName, required}
+    {onChange, value, children, id, type, min, max, inputClassName, labelClassName, required, name}
 ) => {
     return(
         <span className="col-flex-center gap-1">
@@ -9,6 +9,7 @@ const LabelInput = (
             >{children}
             </label>
             <input 
+                name={name}
                 className={inputClassName}
                 onChange={onChange} 
                 value={value} 

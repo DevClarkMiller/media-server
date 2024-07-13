@@ -46,14 +46,15 @@ module.exports = (dbObj) =>{
                 const token = jwt.sign({account: row}, process.env.JWT_SECRET, {expiresIn: "900s"});
                 console.log('NEW TOKEN CREATED!');
 
-                delete row.password;    //Removes password for sercurity reasons
-                console.log(row);
-
                 res.cookie("token", token, {
                     httpOnly: true, //Prevents browser javascript from seeing the cookies
                 });
 
-                res.json(row);
+                res.json({
+                    firstname: row.first_name,
+                    lastname: row.last_name,
+                    email: row.email
+                });
             });
         }catch (err){
             console.error(err);
@@ -73,7 +74,7 @@ module.exports = (dbObj) =>{
             const hashedPass = await bcrypt.hash(password, salt);
 
             let sql = `
-            INSERT INTO User (email, fist_name, last_name, password, max_storage) 
+            INSERT INTO User (email, first_name, last_name, password, max_storage) 
             VALUES (?,?,?,?,?)`;
             const params = [email, firstname, lastname, hashedPass, 5];
 
@@ -84,7 +85,24 @@ module.exports = (dbObj) =>{
                 }
                 console.log(`USER WITH EMAIL: ${email} HAS BEEN CREATED WITH AN ID OF: ${this.lastID}`);
 
-                //Then creates a session token and returns it to the user
+                const account = {
+                    firstname: firstname,
+                    lastname: lastname,
+                    email: email
+                };
+
+                const token = jwt.sign({account: account}, process.env.JWT_SECRET, {expiresIn: "900s"});
+                console.log('NEW TOKEN CREATED!');
+
+                res.cookie("token", token, {
+                    httpOnly: true, //Prevents browser javascript from seeing the cookies
+                });
+
+                res.json({
+                    firstname: firstname,
+                    lastname: lastname,
+                    email: email
+                });
             });
         }catch(error){
             console.error(error);

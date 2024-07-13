@@ -16,13 +16,12 @@ module.exports = (dbObj) =>{
 
     const getMedia = async (req, res) =>{
         console.log('Hit getMedia controller');
-        const email = req.query.email;
 
-        let userID = await getUsersID(email);
-        if(!userID){
-            console.error("User not found!");
-            return;
-        }
+        const {account} = req.account;  //Note that it must be destructed here to work properly
+
+        let userID = await getUsersID(account.email);
+
+        if(!userID) res.status(404).send("Account not found");
 
         //Sends only safe data
         const sql = 'SELECT date_added, ext, og_name, mimetype FROM UserMedia WHERE user_id = ?';
