@@ -10,12 +10,10 @@ import { LoginProvider } from './context/LoginContext';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <LoginProvider>
-    <React.StrictMode>
-      <Router>
-        <Routes>
-          <Route path='/*' element={<App />}/>
-        </Routes>
-      </Router>
-    </React.StrictMode>
+    <Router>
+      <Routes>
+        <Route path='/*' element={<App />}/>
+      </Routes>
+    </Router>
   </LoginProvider>
 );

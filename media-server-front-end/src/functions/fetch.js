@@ -32,11 +32,13 @@ const get = async (path, params, config = {}) =>{
 }
 
 const post = async (path, data, config) =>{
+    let response;
     try{
-        const response = await config ? api.post(path, data, config) : api.post(path, data);
+        response = config ? await api.post(path, data, config) : await api.post(path, data);
         return response;
     }catch(err){
         verboseErrorOutput(err);
+        return response;
     }
 }
 

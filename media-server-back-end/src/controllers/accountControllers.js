@@ -36,6 +36,8 @@ module.exports = (dbObj) =>{
                     console.error(err);
                     return res.status(404).send("User not found!");
                 }
+
+                if(!row || !row.password) return res.status(404).send("User not found!");
                 //Then check if the password is valid
                 const passMatches = await verifyPassword(password, row.password);
                 if(!passMatches) return res.status(403).send(`Your login details seem to be incorrect`);
