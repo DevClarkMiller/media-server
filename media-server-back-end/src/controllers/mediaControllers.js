@@ -8,16 +8,17 @@ module.exports = (dbObj) =>{
         return new Promise((resolve, reject) =>{
             let sql = 
             `SELECT 
-            SUM(file_size) AS "used",
-            u.max_storage as "max",
-            u.max_file_size
+            COALESCE(SUM(file_size), 0) AS "used",
+            (SELECT max_storage FROM User where id = ? LIMIT 1) AS "max",
+            (SELECT max_file_size FROM User where id = ? LIMIT 1) AS "max_file_size"
             FROM UserMedia um INNER JOIN User u ON
             um.user_id = u.id
-            WHERE um.user_id = ?;`
+            WHERE um.user_id = ?`
 
-            db.get(sql, [userID], function(err, row){
-                if(err || !row?.max || !row?.used) return reject(`User with ${userID} doesn't have any files stored`);
-                row.free = row.max - row.used;
+            db.get(sql, [userID, userID, userID], function(err, row){
+                if(err) return reject(`User with ${userID} not found!`);    
+                row.free = (row.used > 0) ? row.max - row.used : row.max; 
+                console.log(row);
                 resolve(row);
             });
         });
@@ -64,7 +65,13 @@ module.exports = (dbObj) =>{
             return;
         }
 
-        const storageDetails = await checkStorageUsage(id);
+        let storageDetails;
+        try{
+            storageDetails = await checkStorageUsage(id);
+        }catch(err){
+            console.error(err);
+            return res.status(500).send(err);
+        }
 
         //Uploads each file
         for(let fileItem of files){
