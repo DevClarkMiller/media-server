@@ -41,24 +41,25 @@ function App() {
 
   //Once user becomes logged in, retrieve all of their files
   useEffect(() =>{
-    if(!account) return;
-      const getFiles = async () =>{
-          const response = await fetchAll.get('/media', null,
-            {
-              headers: { 'Content-Type': 'application/json' },
-              withCredentials: true,
-              credentials: "include"
-          });
+    if(!loggedIn) return console.log("Tried to get files, but account wasn't set yet!");
+    console.log("Now going to get files!");
+    const getFiles = async () =>{
+        const response = await fetchAll.get('/media', null,
+          {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+            credentials: "include"
+        });
 
-          if(!response || response.status !== 200) {
-            //Navs you to the login page
-            navigate('/login');
-          }  
-          
-          setFiles(response.data);
-      }
-      getFiles();
-  }, [account]);
+        if(!response || response.status !== 200) {
+          //Navs you to the login page
+          navigate('/login');
+        }  
+        
+        setFiles(response.data);
+    }
+    getFiles();
+  }, [loggedIn]);
 
   return (
     <div className="App flex flex-col items-center bg-deepBlack h-screen min-h-screen gap-5 pt-5">

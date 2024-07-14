@@ -14,7 +14,7 @@ const Login = () =>{
     const navigate = useNavigate();
 
     //Context
-    const {setAccount} = useContext(LoginContext);
+    const {setAccount, setLoggedIn} = useContext(LoginContext);
 
     //State
     const [email, setEmail] = useState("");
@@ -35,6 +35,7 @@ const Login = () =>{
 
         if(!response?.data || response.status !== 200) return alert('Email or password was incorrect!');
         setAccount(response.data.account);
+        setLoggedIn(true);
         setEmail("");
         setPassword("");
         navigate('/');

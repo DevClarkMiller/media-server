@@ -24,8 +24,8 @@ const Header = () =>{
             credentials: "include"
         };
 
-        const response = await fetchAll.del('/account/signout', null, options);
-        //window.location.reload();
+        const response = await fetchAll.del('/account/signout', options);
+        window.location.reload();
     }
 
     return(

@@ -17,7 +17,7 @@ const CreateAccount = () =>{
     const navigate = useNavigate();
 
     //Context
-    const {setAccount} = useContext(LoginContext);
+    const {setAccount, setLoggedIn} = useContext(LoginContext);
 
     //State
 
@@ -48,6 +48,7 @@ const CreateAccount = () =>{
 
         if(!response?.data) return alert('Unable to create account');
         setAccount(response.data.account);
+        setLoggedIn(true);
 
         dispatchNewAccount({
             type:"RESET_FIELDS"

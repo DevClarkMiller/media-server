@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import fetchAll from "../functions/fetch";
 
 //Context
+
 export const LoginContext = createContext();
 
 export const LoginProvider = ({children}) =>{
@@ -23,7 +24,6 @@ export const LoginProvider = ({children}) =>{
         if(!response || response.status !== 200){
             return navigate('/login');
         }
-
         setAccount(response?.data.account);
         setLoggedIn(true);
     }

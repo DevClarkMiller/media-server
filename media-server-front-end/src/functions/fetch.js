@@ -42,10 +42,10 @@ const post = async (path, data, config) =>{
     }
 }
 
-const del = async (path, data = null, config) =>{
+const del = async (path, config) =>{
     let response;
     try{
-        response = config ? await api.delete(path, data, config) : await api.delete(path, data);
+        response = await api.delete(path, config)
         return response;
     }catch(err){
         verboseErrorOutput(err);
