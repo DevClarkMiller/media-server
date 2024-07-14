@@ -1,5 +1,6 @@
 import { useContext, useState, useReducer } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useInView } from "react-intersection-observer";
 
 //Components
 import LabelInput from "../utilities/LabelInput";
@@ -23,6 +24,27 @@ const CreateAccount = () =>{
 
     //Reducers
     const [newAccount, dispatchNewAccount] = useReducer(accountReducer, INITIAL_STATE);
+
+    const { ref: emailRef, inView: emailInView} = useInView({
+        threshold: 0
+    });
+
+    const { ref: passwordRef, inView: passwordInView} = useInView({
+        threshold: 0
+    });
+
+    const { ref: firstnameRef, inView: firstnameInView} = useInView({
+        threshold: 0
+    });
+
+    const { ref: lastnameRef, inView: lastnameInView} = useInView({
+        threshold: 0
+    });
+
+    const { ref: btnLinkRef, inView: btnLinkInView, entry} = useInView({
+        threshold: 0
+    });
+
 
     const handleChange = e =>{
         dispatchNewAccount({
@@ -55,11 +77,16 @@ const CreateAccount = () =>{
         }); //Resets the fields
         navigate('/');
     }
+
+    const revealed = "opacity-100 translate-x-0 blur-none";
+
     return(
         <form className="size-full col-flex-center gap-5 justify-center" onSubmit={onCreateAccount}>
             <div className="loginFields w-3/4 text-white col-flex-center gap-5">
                 <LabelInput 
+                    ref={emailRef}
                     id="email"
+                    spanClassName={`slow-trans off-to-side ${emailInView&& revealed}`}
                     inputClassName="round-input-black"
                     labelClassName="text-xl"
                     value={newAccount.email}
@@ -70,7 +97,9 @@ const CreateAccount = () =>{
                 >Email</LabelInput>
 
                 <LabelInput 
+                    ref={passwordRef}
                     id="password"
+                    spanClassName={`slow-trans off-to-side-right ${passwordInView&& revealed}`}
                     inputClassName="round-input-black"
                     labelClassName="text-xl"
                     value={newAccount.password}
@@ -81,7 +110,9 @@ const CreateAccount = () =>{
                 >Password</LabelInput>
 
                 <LabelInput 
+                    ref={firstnameRef}
                     id="firstname"
+                    spanClassName={`slow-trans off-to-side ${firstnameInView&& revealed}`}
                     inputClassName="round-input-black"
                     labelClassName="text-xl"
                     value={newAccount.firstname}
@@ -91,7 +122,9 @@ const CreateAccount = () =>{
                 >First Name</LabelInput>
 
                 <LabelInput 
+                    ref={lastnameRef}
                     id="lastname"
+                    spanClassName={`slow-trans off-to-side-right ${lastnameInView&& revealed}`}
                     inputClassName="round-input-black"
                     labelClassName="text-xl"
                     value={newAccount.lastname}
@@ -100,10 +133,14 @@ const CreateAccount = () =>{
                     name="lastname"
                 >Last Name</LabelInput>
             </div>
-
-            <button 
-            className="text-white round-button blue-button">
-                Login</button>
+            
+            <div ref={btnLinkRef} className={`btnNLink col-flex-center gap-2 off-to-side slow-trans ${btnLinkInView&& revealed}`}>
+                <button 
+                type="submit"
+                className={`text-white round-button blue-button`}>
+                Create Account</button>
+                <Link to="/login" className="link text-xl">Login</Link>
+            </div>
         </form>
     );
 }

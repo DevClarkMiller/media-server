@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 
 import { GoPerson, GoPersonFill } from "react-icons/go";
 import { IoExitOutline } from "react-icons/io5";
@@ -15,7 +15,7 @@ const Header = () =>{
 
     //Memos
     const username = useMemo(() =>(
-        account?.email.split("@")[0]
+        account?.email?.split("@")[0]
     ), [account, loggedIn]);
 
     const logout = async() =>{

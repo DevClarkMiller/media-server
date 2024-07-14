@@ -18,10 +18,12 @@ module.exports = (dbObj) =>{
     const isUserAuth = async (req, res) =>{
         console.log('Hit isUserAuth controller');    
 
-        const account = req.account;
+        let account = req.account;
 
         if(!account) return res.status(400).send();
         delete account.id;  //Removes the id from the return value of this function
+        delete account.password;
+
         res.json(account);
     }
 

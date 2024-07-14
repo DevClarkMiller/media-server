@@ -54,6 +54,15 @@
   .off-to-side{
     @apply transform-gpu -translate-x-full opacity-0 blur-lg;
   }
+
+  .off-to-side-right{
+    @apply transform-gpu translate-x-full opacity-0 blur-lg;
+  }
+
+  .link{
+    @apply text-specialPurple font-bold transition-colors duration-300 ease-in-out underline;
+    @apply hover:text-appleLightBlue; /*Hover Event*/
+  }
 }
 
 body {

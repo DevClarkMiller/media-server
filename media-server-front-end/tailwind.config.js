@@ -7,6 +7,7 @@ module.exports = {
     extend: {
       colors:
       {
+        specialPurple: "rgb(35, 12, 136)",
         deepBlack: '#111111',
         appleGray: '#F5F5F7',
         appleBlue: '#0077ED',
