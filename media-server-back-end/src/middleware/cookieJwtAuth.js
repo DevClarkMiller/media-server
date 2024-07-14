@@ -14,6 +14,7 @@ const cookieJwtAuth = async (req, res, next) =>{
         console.error("User token expired or doesn't exist");
         res.clearCookie("token");
         res.cookie("signedIn", false);
+        return res.status(403).send("User token expired or doesn't exist");
     }
 }
 

@@ -37,7 +37,6 @@ const File = ({checkOpacity, file, itemView, downloadFile}) =>{
         };
 
         const queryParams = new URLSearchParams({
-            email: 'clarkmillermail@gmail.com',
             filename: file.og_name,
             isCompressed: true
         }, options);

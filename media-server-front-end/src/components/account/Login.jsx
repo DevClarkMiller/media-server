@@ -33,7 +33,7 @@ const Login = () =>{
             credentials: "include"
         });
 
-        if(!response?.data) return alert('Email or password was incorrect!');
+        if(!response?.data || response.status !== 200) return alert('Email or password was incorrect!');
         setAccount(response.data.account);
         setEmail("");
         setPassword("");
@@ -41,7 +41,7 @@ const Login = () =>{
     }
 
     return(
-        <form className="size-full col-flex-center gap-5" onSubmit={onLogin}>
+        <form className="size-full col-flex-center justify-center gap-5" onSubmit={onLogin}>
             <div className="loginFields w-3/4 text-white col-flex-center gap-5">
                 <LabelInput 
                     id="email"

@@ -55,7 +55,7 @@ const CreateAccount = () =>{
         navigate('/');
     }
     return(
-        <form className="size-full col-flex-center gap-5" onSubmit={onCreateAccount}>
+        <form className="size-full col-flex-center gap-5 justify-center" onSubmit={onCreateAccount}>
             <div className="loginFields w-3/4 text-white col-flex-center gap-5">
                 <LabelInput 
                     id="email"

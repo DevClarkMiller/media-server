@@ -9,11 +9,13 @@ import { LoginProvider } from './context/LoginContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <LoginProvider>
-    <Router>
-      <Routes>
-        <Route path='/*' element={<App />}/>
-      </Routes>
-    </Router>
-  </LoginProvider>
+  <Router>
+    <Routes>
+      <Route path='/*' element={
+        <LoginProvider>
+          <App />
+        </LoginProvider>
+      }/>
+    </Routes>
+  </Router>
 );

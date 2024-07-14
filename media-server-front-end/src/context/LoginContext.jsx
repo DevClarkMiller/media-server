@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 //Functions
 import fetchAll from "../functions/fetch";
@@ -7,19 +8,23 @@ import fetchAll from "../functions/fetch";
 export const LoginContext = createContext();
 
 export const LoginProvider = ({children}) =>{
+    const navigate = useNavigate();
     //State
     const [loggedIn, setLoggedIn] = useState(false);
     const [account, setAccount] = useState(null);
 
     const grabAccount = async () =>{
-        const accountData = await fetchAll.get("/account", null, {
+        const response = await fetchAll.get("/account", null, {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true,
             credentials: "include"
         });
 
-        if(!accountData?.data) return;
-        setAccount(accountData?.data.account);
+        if(!response || response.status !== 200){
+            return navigate('/login');
+        }
+
+        setAccount(response?.data.account);
         setLoggedIn(true);
     }
 

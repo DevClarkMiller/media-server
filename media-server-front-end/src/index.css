@@ -17,6 +17,10 @@
     @apply transition-all duration-300 ease-in-out;
   }
 
+  .slow-trans{
+    @apply transition-all duration-700 ease-in-out;
+  }
+
   .nice-trans{
     @apply transition-all duration-300 ease-in-out;
   }
@@ -45,6 +49,10 @@
     @apply bg-appleBlue;
     @apply hover:bg-appleLightBlue;
     @apply transition-colors duration-300 ease-in-out;
+  }
+
+  .off-to-side{
+    @apply transform-gpu -translate-x-full opacity-0 blur-lg;
   }
 }
 

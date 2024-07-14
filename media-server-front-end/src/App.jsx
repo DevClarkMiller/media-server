@@ -5,6 +5,7 @@ import {Routes, Route, useNavigate} from 'react-router-dom';
 import Header from "./components/Header";
 import Content from "./components/Content";
 import Login from './components/account/Login';
+import NotFound from './components/utilities/NotFound';
 
 //Functions
 import fetchAll from './functions/fetch';
@@ -48,22 +49,26 @@ function App() {
               withCredentials: true,
               credentials: "include"
           });
-          if(response){
-            setFiles(response.data);
-          }
-      }
 
+          if(!response || response.status !== 200) {
+            //Navs you to the login page
+            navigate('/login');
+          }  
+          
+          setFiles(response.data);
+      }
       getFiles();
   }, [account]);
 
   return (
-    <div className="App flex flex-col items-center bg-deepBlack min-h-screen gap-5 pt-5">
+    <div className="App flex flex-col items-center bg-deepBlack h-screen min-h-screen gap-5 pt-5">
       <FileContext.Provider value={{files, setFiles, search, setSearch, renderedFiles, setRendererdFiles, itemView, setItemView}}>
         <Header />
         <Routes>
           <Route path='/' element={<Content />}/>
           <Route path='login' element={<Login />}/>
           <Route path='createAccount' element={<CreateAccount/>} />
+          <Route path='*' element={<NotFound />}/>
         </Routes>
       </FileContext.Provider>
     </div>
