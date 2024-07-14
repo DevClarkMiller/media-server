@@ -77,9 +77,9 @@ module.exports = (dbObj) =>{
             const hashedPass = await bcrypt.hash(password, salt);
 
             let sql = `
-            INSERT INTO User (email, first_name, last_name, password, max_storage) 
-            VALUES (?,?,?,?,?)`;
-            const params = [email, firstname, lastname, hashedPass, 5];
+            INSERT INTO User (email, first_name, last_name, password, max_storage, max_file_size) 
+            VALUES (?,?,?,?,?,?)`;
+            const params = [email, firstname, lastname, hashedPass, 5000000, 1000000];
 
             db.run(sql, params, async function(err){
                 if(err){
@@ -94,7 +94,6 @@ module.exports = (dbObj) =>{
                     email: email,
                     id: this.lastID
                 };
-
 
                 const token = jwt.sign({account: account}, process.env.JWT_SECRET, {expiresIn: "900s"});
                 console.log('NEW TOKEN CREATED!');

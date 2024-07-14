@@ -65,7 +65,6 @@ module.exports = (dbObj) =>{
         }
 
         const storageDetails = await checkStorageUsage(id);
-        console.log(storageDetails);
 
         //Uploads each file
         for(let fileItem of files){
