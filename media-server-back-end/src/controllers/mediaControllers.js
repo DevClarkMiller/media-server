@@ -66,10 +66,10 @@ module.exports = (dbObj) =>{
             const fileName = Date.now() + "-" + file.name;
             // //Scalar query for getting the id of the user given the email
             sql = `
-            INSERT INTO UserMedia (user_id, name, path, date_added, ext, og_name, mimetype) 
-            VALUES (?,?,?,?,?,?,?)`;
+            INSERT INTO UserMedia (user_id, name, path, date_added, ext, og_name, mimetype, file_size) 
+            VALUES (?,?,?,?,?,?,?,?)`;
             const dateStr = new Date().toISOString();
-            const partedName = file.name.split('.');
+            const partedName = file.name.split('.');            
             const fileExt = partedName[partedName.length - 1];
 
             //When server is actually active, change the path to be relative and include the server url at beginning.
@@ -79,9 +79,9 @@ module.exports = (dbObj) =>{
             const filepath = `${basepath}${fileName}`;
             fs.mkdirSync(basepath, { recursive: true });    //Creates filepath if it doesn't exist
 
-            const params = [userID, fileName, filepath, dateStr, fileExt, file.name, file.mimetype];
+            const params = [userID, fileName, filepath, dateStr, fileExt, file.name, file.mimetype, file.size];
 
-            db.run(sql, params, async (err)=>{
+            db.run(sql, params, async function(err){
                 if(err){
                     console.error(err.message);
                     return res.status(409).send('File with that name already exists!');
