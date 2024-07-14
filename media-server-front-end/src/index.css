@@ -6,6 +6,10 @@
   html{
     font-family: "Nunito", sans-serif;
   }
+
+  body{
+    @apply bg-deepBlack;
+  }
 }
 
 @layer components{
