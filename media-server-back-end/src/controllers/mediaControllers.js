@@ -3,15 +3,24 @@ module.exports = (dbObj) =>{
     const db = dbObj.DB;
     const sharp = require('sharp');
 
-    const getUsersID = (email) =>{
+    //Gets crucial details about how much storage a user has left
+    const checkStorageUsage = (userID) =>{
         return new Promise((resolve, reject) =>{
-            const sql = `SELECT id FROM User WHERE email = ?`;
-            db.get(sql, [email], (err, row)=>{
-                if(err) return reject(err.message);
-                if(!row) return reject("User not found!");
-                resolve(row.id);
+            let sql = 
+            `SELECT 
+            SUM(file_size) AS "used",
+            u.max_storage as "max",
+            u.max_file_size
+            FROM UserMedia um INNER JOIN User u ON
+            um.user_id = u.id
+            WHERE um.user_id = ?;`
+
+            db.get(sql, [userID], function(err, row){
+                if(err || !row?.max || !row?.used) return reject(`User with ${userID} doesn't have any files stored`);
+                row.free = row.max - row.used;
+                resolve(row);
             });
-        })
+        });
     }
 
     const getMedia = async (req, res) =>{
@@ -19,7 +28,6 @@ module.exports = (dbObj) =>{
 
         const {account} = req.account;  //Note that it must be destructed here to work properly
         const userID = account.id;
-
 
         if(!userID) return res.status(404).send("Account not found");
 
@@ -56,12 +64,27 @@ module.exports = (dbObj) =>{
             return;
         }
 
+        const storageDetails = await checkStorageUsage(id);
+        console.log(storageDetails);
+
         //Uploads each file
         for(let fileItem of files){
             if(!fileItem) return res.status(500).send("File not uploaded!");
 
             let file = fileItem?.file;
             file.name = file.name.replace(" ", "");
+            const filesize = file.size / 1024;
+
+            //Checks if adding the file will take up more storage than the user has
+            if((storageDetails.used += filesize) > storageDetails.max || filesize > storageDetails.max_file_size){
+                console.log('File cannot be stored! This is why');
+                console.log(`Storage used: ${(storageDetails.used / storageDetails.max) * 100}%`);
+                console.log(`Max file size: ${storageDetails.max_file_size}`);
+                console.log(`Uploaded files size: ${filesize}`);
+                console.log(`Uploaded file is bigger than upload limit: ${filesize > storageDetails.max_file_size}`);
+                console.log(`Adding file exceeding storage limits: ${(storageDetails.used += filesize) > storageDetails.max}`);
+                return res.status(507).send("Insuffficient Storage OR file too big to upload");
+            }
 
             const fileName = Date.now() + "-" + file.name;
             // //Scalar query for getting the id of the user given the email
@@ -79,7 +102,7 @@ module.exports = (dbObj) =>{
             const filepath = `${basepath}${fileName}`;
             fs.mkdirSync(basepath, { recursive: true });    //Creates filepath if it doesn't exist
 
-            const params = [userID, fileName, filepath, dateStr, fileExt, file.name, file.mimetype, file.size];
+            const params = [userID, fileName, filepath, dateStr, fileExt, file.name, file.mimetype, filesize];  //I divide here to convert it to kb for more compact storage in the db
 
             db.run(sql, params, async function(err){
                 if(err){
@@ -121,39 +144,39 @@ module.exports = (dbObj) =>{
     };
 
     const deleteMedia = async (req, res) =>{
-        const email = req.query.email;
-        const ogName = req.query.ogName;
-        console.log(`EMAIL: ${email}, OGNAME: ${ogName}`);
+        // const email = req.query.email;
+        // const ogName = req.query.ogName;
+        // console.log(`EMAIL: ${email}, OGNAME: ${ogName}`);
 
-        const userID = getUsersID(email);
+        // const userID = getUsersID(email);
 
-        let filePath = "";
-        let sql = "SELECT path FROM UserMedia WHERE user_id=? AND og_name=?";
-        const params = [userID, ogName];
+        // let filePath = "";
+        // let sql = "SELECT path FROM UserMedia WHERE user_id=? AND og_name=?";
+        // const params = [userID, ogName];
 
-        //Do query to get the file path
-        db.get(sql, params, (err, row)=>{
-            if(err) return console.error(err.message);
-            if(!row) return console.error("File not found!");
-            filePath = row.path;
-            console.log(filePath);
-        });
-        sql = 'DELETE FROM UserMedia WHERE user_id=? AND og_name=?';
-        db.run(sql, params, (err) =>{
-            if(err){
-                res.status(500).send('Could not remove the specified file');
-                return console.log("Couldn't remove file!");
-            }
-            console.log("Successfully deleted the record!");
+        // //Do query to get the file path
+        // db.get(sql, params, (err, row)=>{
+        //     if(err) return console.error(err.message);
+        //     if(!row) return console.error("File not found!");
+        //     filePath = row.path;
+        //     console.log(filePath);
+        // });
+        // sql = 'DELETE FROM UserMedia WHERE user_id=? AND og_name=?';
+        // db.run(sql, params, (err) =>{
+        //     if(err){
+        //         res.status(500).send('Could not remove the specified file');
+        //         return console.log("Couldn't remove file!");
+        //     }
+        //     console.log("Successfully deleted the record!");
 
-            fs.unlinkSync(filePath,(err) => {
-                if(err){
-                    res.status(500).send('Could not remove the specified file');
-                    return console.log("Couldn't remove file!");
-                }                
-                res.status(200).send("Successfully removed the file!");
-            }); 
-        });
+        //     fs.unlinkSync(filePath,(err) => {
+        //         if(err){
+        //             res.status(500).send('Could not remove the specified file');
+        //             return console.log("Couldn't remove file!");
+        //         }                
+        //         res.status(200).send("Successfully removed the file!");
+        //     }); 
+        // });
     }
 
     const downloadMedia = async (req, res) =>{
