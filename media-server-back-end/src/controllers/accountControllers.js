@@ -113,10 +113,17 @@ module.exports = (dbObj) =>{
         }
     }
 
+    const signOut = (req, res) =>{
+        console.log('Hit signOut controller');
+        res.clearCookie("token");
+        res.status(200).send("You should now be logged out!");
+    } 
+
     return{
         isUserAuth,
         login,
         deleteAccount,
-        createAccount
+        createAccount,
+        signOut
     }
 }

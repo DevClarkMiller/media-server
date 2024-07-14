@@ -42,6 +42,17 @@ const post = async (path, data, config) =>{
     }
 }
 
+const del = async (path, data = null, config) =>{
+    let response;
+    try{
+        response = config ? await api.delete(path, data, config) : await api.delete(path, data);
+        return response;
+    }catch(err){
+        verboseErrorOutput(err);
+        return response;
+    }
+}
+
 export default {
-    get, post
+    get, post, del
 }

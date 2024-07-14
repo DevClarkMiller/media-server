@@ -6,8 +6,12 @@ module.exports = (app, dbObj) =>{
         .get(cookieJwtAuth, accountController.isUserAuth)
         .post(accountController.login)
         // .put(mediaController.putMedia) Add this for changing account details
-        .delete(accountController.deleteAccount);
+        .delete(accountController.deleteAccount)
+
     
     app.route("/account/create")
-        .post(accountController.createAccount)
+        .post(accountController.createAccount);
+    
+    app.route("/account/signout")
+        .delete(accountController.signOut);
 }
