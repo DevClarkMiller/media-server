@@ -41,7 +41,7 @@ function App() {
 
   //Once user becomes logged in, retrieve all of their files
   useEffect(() =>{
-    if(!loggedIn) return console.log("Tried to get files, but account wasn't set yet!");
+    if(!loggedIn) return;
     console.log("Now going to get files!");
     const getFiles = async () =>{
         const response = await fetchAll.get('/media', null,

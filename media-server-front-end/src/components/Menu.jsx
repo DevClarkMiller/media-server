@@ -44,18 +44,32 @@ const Menu = () =>{
     const {account} = useContext(LoginContext);
 
     //State
-    const [newFile, setNewFile] = useState();
+    const [newFile, setNewFile] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(null);
 
 
     //Refs
     const fileRef = useRef();
     const formRef = useRef();
 
+    const onUploadProgress = progressEvent =>{
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(percentCompleted);
+        setUploadProgress(percentCompleted / 100);
+
+        // This condition checks if the download is complete successfully
+        if (percentCompleted === 100 && progressEvent.loaded === progressEvent.total) {
+            console.log("Upload complete!");
+            setUploadProgress(null); // Reset download state after completion
+        } else if (progressEvent.loaded === 0 && progressEvent.total === 0) {
+            setUploadProgress(null); // Disables the download bar
+        }
+    }
+
     const uploadFile = async (e) =>{
         e.preventDefault();
         console.log(account);
         if(!newFile || !account?.email) return;
-
         try{
             const formData = new FormData();
             formData.append('file', newFile);
@@ -65,13 +79,19 @@ const Menu = () =>{
                     'content-type': 'multipart/form-data',
                 },
                 withCredentials: true,
-                credentials: "include"
+                credentials: "include",
+                onUploadProgress: onUploadProgress
             };
             const response = await fetchAll.post('/media', formData, config);
             if(response.status === 500) return alert("Unable to upload file");
 
             setFiles([...files, response.data]); //Adds new file to the files state
             setNewFile(null);
+
+            setTimeout(() =>{
+                setUploadProgress(null); // Disables the download bar
+                console.log('Upload complete!');
+            }, [250]);
         }catch(err){
             console.error(err);
             if(err?.response.status === 409){
@@ -96,14 +116,18 @@ const Menu = () =>{
 
     return(
         <div className="menu col-flex-center gap-3 w-3/4 lg:w-full">
+
             <div className="flex gap-5 w-full lg:w-3/4">
-                <form ref={formRef} onSubmit={uploadFile}>
-                    <input onChange={handleChange} className="hidden" ref={fileRef} type="file" />
-                    <CiCirclePlus onClick={selectFile} className="text-white text-4xl transition-colors duration-300 hover:text-appleLightBlue hover:cursor-pointer"/>
-                </form>
-                <SearchBar search={search} setSearch={setSearch} /> 
+            <form ref={formRef} onSubmit={uploadFile}>
+                <input onChange={handleChange} className="hidden" ref={fileRef} type="file" />
+                <CiCirclePlus onClick={selectFile} className="text-white text-4xl transition-colors duration-300 hover:text-appleLightBlue hover:cursor-pointer"/>
+            </form>
+            {!uploadProgress?
+                <SearchBar search={search} setSearch={setSearch} /> :
+                <div className="w-full flex justify-center items-center"><progress  className="w-full" value={uploadProgress}/></div>   
+            }
             </div>   
-            <ViewOptions itemView={itemView} setItemView={setItemView} />        
+            <ViewOptions itemView={itemView} setItemView={setItemView} />
         </div>
     );
 }

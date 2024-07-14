@@ -12,7 +12,7 @@ const start = async () =>{
     app.use(fileUpload());
     app.use(cookieParser());
     app.use(cors({
-        origin: "http://localhost:3000",
+        origin: process.env.ORIGIN,
         credentials: true
     }));
 
@@ -23,7 +23,7 @@ const start = async () =>{
     require('./routes')(app, dbObj);
 
     app.listen(process.env.PORT, () =>{
-        console.log(`✅ Active on port: ${process.env.port}`);
+        console.log(`✅ Active on port: ${process.env.PORT}`);
     })
 }
 

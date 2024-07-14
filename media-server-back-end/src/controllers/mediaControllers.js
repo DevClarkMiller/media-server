@@ -58,7 +58,9 @@ module.exports = (dbObj) =>{
 
         //Uploads each file
         for(let fileItem of files){
-            let file = fileItem.file;
+            if(!file) return res.status(500).send("File not uploaded!");
+
+            let file = fileItem?.file;
             file.name = file.name.replace(" ", "");
 
             const fileName = Date.now() + "-" + file.name;
@@ -73,7 +75,7 @@ module.exports = (dbObj) =>{
             //When server is actually active, change the path to be relative and include the server url at beginning.
             //also keep files in a static folder
 
-            const basepath = `/var/drive-backend/src/uploads/${email}/`;
+            const basepath = `/var/uploads/${email}/`;
             const filepath = `${basepath}${fileName}`;
             fs.mkdirSync(basepath, { recursive: true });    //Creates filepath if it doesn't exist
 
