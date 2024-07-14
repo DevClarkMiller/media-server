@@ -58,7 +58,7 @@ module.exports = (dbObj) =>{
 
         //Uploads each file
         for(let fileItem of files){
-            if(!file) return res.status(500).send("File not uploaded!");
+            if(!fileItem) return res.status(500).send("File not uploaded!");
 
             let file = fileItem?.file;
             file.name = file.name.replace(" ", "");
