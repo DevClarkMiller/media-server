@@ -29,7 +29,7 @@ const Header = () =>{
     }
 
     return(
-        <header className="w-full px-5 flex justify-center">
+        <header className="w-full px-5 flex justify-center col-flex-center lg:flex-row">
             <h1 className="text-3xl font-semibold text-white flex-grow text-center">Discrete File Drive</h1> 
             
             {loggedIn&&<div className="logoutBar flex items-center gap-2">

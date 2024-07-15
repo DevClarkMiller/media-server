@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import Content from "./components/Content";
 import Login from './components/account/Login';
 import NotFound from './components/utilities/NotFound';
+import AuthenticateAccount from './components/AuthenticateAccount';
 
 //Functions
 import fetchAll from './functions/fetch';
@@ -69,6 +70,7 @@ function App() {
           <Route path='/' element={<Content />}/>
           <Route path='login' element={<Login />}/>
           <Route path='createAccount' element={<CreateAccount/>} />
+          <Route path='authenticate' element={<AuthenticateAccount />} />
           <Route path='*' element={<NotFound />}/>
         </Routes>
       </FileContext.Provider>

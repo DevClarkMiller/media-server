@@ -10,15 +10,53 @@ module.exports = (dbObj) =>{
     const nodemailer = require('nodemailer');
     require('dotenv').config();
 
-    const readHTMLFile = (path, callback) =>{
-        fs.readFile(path, {encoding: 'utf-8'}, (err, html) =>{
-            if(err) {
-                throw err;
-            }else{
-                callback(null, html);
-            }
+    //HTML Email Template paths
+    const html_confirmation_path = './src/email-templates/account_confirmation.html';
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: process.env.TRANSPONDER_PORT,
+        secure: false,
+        auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS
+        }
+    });
+
+    const sendMail = async (trans, mailOpts) =>{
+        try{
+            await trans.sendMail(mailOpts);
+            console.log('Authentication email successfully sent!');
+        }catch(error){
+            console.log(error);
+        }
+    }
+
+    const createMailOptions = (details) =>{
+        const mailOptions = {
+            from: {
+                name: details.name
+            },
+            to: details.sendTo,
+            subject: details.subject,
+            text: details.text,
+            html: details.html
+        }
+        return mailOptions;
+    }
+
+    const mailAuthentication = async (email, html_template) =>{
+        const mailOpts = createMailOptions({
+            name: 'drive.clarkmiller.ca',
+            subject: "Account creation authentication",
+            sendTo: email,
+            text: "Thank you for signing up, to activate your account, please click the link",
+            html: html_template
+
         });
-    } 
+        sendMail(transporter, mailOpts);
+    }
 
     const verifyPassword = async (pass, hashedPass) =>{
         try{
@@ -83,6 +121,8 @@ module.exports = (dbObj) =>{
 
     }
 
+    //When users go to create an account, the account details will be inserted into the database, and have the accountStatus set as not-active
+    //Then when they hit this route, their account will get activated
     const accountActivated = async (req, res) =>{
         const account = req.account;
 
@@ -104,14 +144,15 @@ module.exports = (dbObj) =>{
 
     const createAccount = async (req, res) =>{
         const {email, password, firstname, lastname} = req.body;
-
+        if(!email || !password || !firstname || !lastname) return res.status(404).send("One or more crucial fields weren't provided");
+        console.log(req.body);
         try{
             //1. Hash + Salt password
             const hashedPass = await bcrypt.hash(password, salt);
 
             let sql = `
-            INSERT INTO User (email, first_name, last_name, password, max_storage, max_file_size) 
-            VALUES (?,?,?,?,?,?)`;
+            INSERT INTO User (email, first_name, last_name, password, max_storage, max_file_size, account_status) 
+            VALUES (?,?,?,?,?,?, "not-active")`;
             const params = [email, firstname, lastname, hashedPass, 5000000, 1000000];
 
             db.run(sql, params, async function(err){
@@ -132,16 +173,38 @@ module.exports = (dbObj) =>{
                 const token = jwt.sign({account: account}, process.env.JWT_SECRET, {expiresIn: "900s"});
                 console.log('NEW TOKEN CREATED!');
 
-                res.cookie("token", token, {
-                    httpOnly: true, //Prevents browser javascript from seeing the cookies
+                const baseUrl = process.env.AUTHENTICATION_BASE_URL;
+                const queryParams = new URLSearchParams({
+                    token: token
                 });
 
-                res.json({
-                    firstname: firstname,
-                    lastname: lastname,
-                    email: email,
-                    accountStatus: "not-active"
+                const fullUrl = `${baseUrl}?${queryParams.toString()}`;
+
+                //Reads in the html
+                fs.readFile(path.resolve(html_confirmation_path), {encoding: 'utf-8'}, (err, html) =>{
+                    if(err) {
+                        console.log(path.resolve(html_confirmation_path));
+                        console.log(err);
+                        // console.error('Something went wrong when reading in the html');
+                    }else{
+                        const template = handlebars.compile(html);
+                        const confirmation_html = template({confirmation_url: fullUrl});
+                        mailAuthentication(email, confirmation_html);
+                    }
                 });
+
+                //Then sends an email with this token in the link url
+
+                // res.cookie("token", token, {
+                //     httpOnly: true, //Prevents browser javascript from seeing the cookies
+                // });
+
+                // res.json({
+                //     firstname: firstname,
+                //     lastname: lastname,
+                //     email: email,
+                //     accountStatus: "not-active"
+                // });
             });
         }catch(error){
             console.error(error);

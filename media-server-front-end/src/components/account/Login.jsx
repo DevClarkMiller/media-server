@@ -86,6 +86,7 @@ const Login = () =>{
 
             <div ref={btnLinkRef} className={`btnNLink col-flex-center gap-2 off-to-side slow-trans ${btnLinkInView&& revealed}`}>
                 <button 
+                type="submit"
                 className={`text-white round-button blue-button`}>
                     Login</button>
                 <Link to="/createAccount" className="link text-xl">Create Account</Link>
