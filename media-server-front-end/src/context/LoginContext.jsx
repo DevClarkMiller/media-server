@@ -22,7 +22,7 @@ export const LoginProvider = ({children}) =>{
         });
 
         if(!response || response.status !== 200){
-            return navigate('/login');
+            return; /*navigate('/login');*/
         }
         setAccount(response?.data?.account);
         setLoggedIn(true);

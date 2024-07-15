@@ -10,7 +10,8 @@ module.exports = (app, dbObj) =>{
 
     
     app.route("/account/create")
-        .post(accountController.createAccount);
+        .post(accountController.createAccount)
+        .get(accountController.activateAccount);
     
     app.route("/account/signout")
         .delete(accountController.signOut);

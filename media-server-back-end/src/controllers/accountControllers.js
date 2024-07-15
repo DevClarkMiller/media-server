@@ -84,7 +84,7 @@ module.exports = (dbObj) =>{
 
         const {email, password} = req.body;
 
-        let sql = 'SELECT id, email, password, first_name, last_name FROM User WHERE email = ?';
+        let sql = 'SELECT id, email, password, first_name, last_name, account_status FROM User WHERE email = ?';
         try{
             db.get(sql, email, async function(err, row){
                 if(err){
@@ -92,7 +92,7 @@ module.exports = (dbObj) =>{
                     return res.status(404).send("User not found!");
                 }
 
-                if(!row || !row.password) return res.status(404).send("User not found!");
+                if(!row || !row.password|| row?.account_status === "not-active") return res.status(404).send("User not found, or account isn't activated!");
                 //Then check if the password is valid
                 const passMatches = await verifyPassword(password, row.password);
                 if(!passMatches) return res.status(403).send(`Your login details seem to be incorrect`);
@@ -123,23 +123,39 @@ module.exports = (dbObj) =>{
 
     //When users go to create an account, the account details will be inserted into the database, and have the accountStatus set as not-active
     //Then when they hit this route, their account will get activated
-    const accountActivated = async (req, res) =>{
-        const account = req.account;
+    const activateAccount = async (req, res) =>{
+        console.log('Hit activateAccount controller');
+        const token = req.query.token;
 
-        if(!account || !account?.id) return res.status(410).send('Link for account authentication has expired!');   //NOTE - GIVE USERS ABILITY TO GENERATE A NEW LINK!
+        if(!token) return res.status(404).send('Account token not provided!');
 
-        let sql = `
-        UPDATE User 
-        SET account_status = "active"
-        WHERE id = ?;
-        `;
-        db.run(sql, [account.id], function(err){
-            if(err){
-                res.status(404).send("Couldn't find account or something went wrong when trying to authenticate!");
-            }else{
-                res.status(200).send("Your account has been successfully activated! Enjoy storing your files with safety and simplicity!");
+        try{
+            const {account} = await jwt.verify(token, process.env.JWT_SECRET);
+
+            if(!account || !account?.id) {
+                console.error('Link for account authentication has expired!');
+                return res.status(410).send('Link for account authentication has expired!');   //NOTE - GIVE USERS ABILITY TO GENERATE A NEW LINK!}
             }
-        });
+            let sql = `
+            UPDATE User 
+            SET account_status = "active"
+            WHERE id = ?;
+            `;
+            db.run(sql, [account.id], function(err){
+                if(err){
+                    res.status(404).send("Couldn't find account or something went wrong when trying to authenticate!");
+                }else{
+                    console.log('Users account has now been verified');
+                    //Gives the user a token cookie upon account activation
+                    res.cookie("token", token, {
+                        httpOnly: true, //Prevents browser javascript from seeing the cookies
+                    });
+                    res.status(200).send("Your account has been successfully activated! Enjoy storing your files with safety and simplicity!");
+                }
+            });
+        }catch(err){
+            res.status(400).send('Token is malformed!');
+        }
     }
 
     const createAccount = async (req, res) =>{
@@ -158,7 +174,7 @@ module.exports = (dbObj) =>{
             db.run(sql, params, async function(err){
                 if(err){
                     console.error(err);
-                    return res.status(500).send("Error encountered with creating");
+                    return res.status(500).send("Error encountered with creating account");
                 }
                 console.log(`USER WITH EMAIL: ${email} HAS BEEN CREATED WITH AN ID OF: ${this.lastID}`);
 
@@ -190,21 +206,9 @@ module.exports = (dbObj) =>{
                         const template = handlebars.compile(html);
                         const confirmation_html = template({confirmation_url: fullUrl});
                         mailAuthentication(email, confirmation_html);
+                        res.status(200).send("Email confirmation sent!");
                     }
                 });
-
-                //Then sends an email with this token in the link url
-
-                // res.cookie("token", token, {
-                //     httpOnly: true, //Prevents browser javascript from seeing the cookies
-                // });
-
-                // res.json({
-                //     firstname: firstname,
-                //     lastname: lastname,
-                //     email: email,
-                //     accountStatus: "not-active"
-                // });
             });
         }catch(error){
             console.error(error);
@@ -223,6 +227,7 @@ module.exports = (dbObj) =>{
         login,
         deleteAccount,
         createAccount,
-        signOut
+        signOut,
+        activateAccount
     }
 }
