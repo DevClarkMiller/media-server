@@ -1,10 +1,24 @@
+const path = require('path');
+
 module.exports = (dbObj) =>{
     const fs = require('fs');
     const bcrypt = require('bcryptjs');
     const salt = bcrypt.genSaltSync(5);
     const jwt = require('jsonwebtoken');
     const db = dbObj.DB;
+    const handlebars = require('handlebars');
+    const nodemailer = require('nodemailer');
     require('dotenv').config();
+
+    const readHTMLFile = (path, callback) =>{
+        fs.readFile(path, {encoding: 'utf-8'}, (err, html) =>{
+            if(err) {
+                throw err;
+            }else{
+                callback(null, html);
+            }
+        });
+    } 
 
     const verifyPassword = async (pass, hashedPass) =>{
         try{
@@ -69,6 +83,25 @@ module.exports = (dbObj) =>{
 
     }
 
+    const accountActivated = async (req, res) =>{
+        const account = req.account;
+
+        if(!account || !account?.id) return res.status(410).send('Link for account authentication has expired!');   //NOTE - GIVE USERS ABILITY TO GENERATE A NEW LINK!
+
+        let sql = `
+        UPDATE User 
+        SET account_status = "active"
+        WHERE id = ?;
+        `;
+        db.run(sql, [account.id], function(err){
+            if(err){
+                res.status(404).send("Couldn't find account or something went wrong when trying to authenticate!");
+            }else{
+                res.status(200).send("Your account has been successfully activated! Enjoy storing your files with safety and simplicity!");
+            }
+        });
+    }
+
     const createAccount = async (req, res) =>{
         const {email, password, firstname, lastname} = req.body;
 
@@ -92,7 +125,8 @@ module.exports = (dbObj) =>{
                     firstname: firstname,
                     lastname: lastname,
                     email: email,
-                    id: this.lastID
+                    id: this.lastID,
+                    accountStatus: "not-active"
                 };
 
                 const token = jwt.sign({account: account}, process.env.JWT_SECRET, {expiresIn: "900s"});
@@ -105,7 +139,8 @@ module.exports = (dbObj) =>{
                 res.json({
                     firstname: firstname,
                     lastname: lastname,
-                    email: email
+                    email: email,
+                    accountStatus: "not-active"
                 });
             });
         }catch(error){
