@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 //Functions
 import fetchAll from "../functions/fetch";
@@ -10,11 +10,13 @@ export const LoginContext = createContext();
 
 export const LoginProvider = ({children}) =>{
     const navigate = useNavigate();
+    const location = useLocation();
     //State
     const [loggedIn, setLoggedIn] = useState(false);
     const [account, setAccount] = useState(null);
 
     const grabAccount = async () =>{
+        console.log('Now grabbing account');
         const response = await fetchAll.get("/account", null, {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true,
@@ -22,7 +24,12 @@ export const LoginProvider = ({children}) =>{
         });
 
         if(!response || response.status !== 200){
-            return; /*navigate('/login');*/
+            const path = location.pathname;
+            const shouldNav = !(path.includes("authenticate") || path.includes("login") || path.includes("createAccount"));
+            console.log(shouldNav);
+            if(location.pathname.includes)
+            console.log(location.pathname);
+            return (shouldNav) ?  navigate('/login') : null;
         }
         setAccount(response?.data?.account);
         setLoggedIn(true);

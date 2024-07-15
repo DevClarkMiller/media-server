@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import {Routes, Route, useNavigate} from 'react-router-dom';
+import {Routes, Route, useNavigate, useLocation} from 'react-router-dom';
 
 //Components
 import Header from "./components/Header";
@@ -19,6 +19,7 @@ export const FileContext = createContext();
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   //Context
   const {loggedIn, setLoggedIn, account, setAccount, grabAccount} = useContext(LoginContext);
@@ -29,7 +30,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [itemView, setItemView] = useState("tile"); //Either tile or square
 
-  useEffect(() => {grabAccount()}, []);
+  useEffect(() => { if(!loggedIn) grabAccount() }, [location]);
 
   useEffect(() =>{
     const filteredFiles = files.filter((file) => {
