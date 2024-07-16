@@ -12,7 +12,7 @@ import fileDownload from 'js-file-download';
 
 const UserFiles = () =>{
     //Context
-    const { renderedFiles, itemView } = useContext(FileContext);
+    const { renderedFiles, setRenderedFiles, itemView, setFiles, files } = useContext(FileContext);
 
     //Func is placed up here for limited rendering
     const checkOpacity = (element, setClass) =>{
@@ -67,12 +67,31 @@ const UserFiles = () =>{
             console.log('Download complete!');
         }, [250]);
     }
+
+    const deleteFile = async filename =>{
+        const response = await fetchAll.del("/media", {ogName: filename}, {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+            credentials: "include",
+        });
+        console.log(response.status);
+        if(!response || response?.status !== 200) return alert("Couldn't delete file");
+        alert("File now deleted!");
+        setFiles(files.filter((file) => file.og_name !== filename));
+    }
     
     return(
         <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
             {renderedFiles&&
                 renderedFiles.map((file) =>(
-                    <File checkOpacity={checkOpacity} key={file.og_name} downloadFile={downloadFile} itemView={itemView} file={file}/>
+                    <File 
+                        checkOpacity={checkOpacity} 
+                        key={file.og_name} 
+                        downloadFile={downloadFile} 
+                        deleteFile={deleteFile} 
+                        itemView={itemView} 
+                        file={file}
+                    />
                 ))
             }
         </div>

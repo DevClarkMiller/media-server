@@ -150,39 +150,39 @@ module.exports = (dbObj) =>{
     };
 
     const deleteMedia = async (req, res) =>{
-        // const email = req.query.email;
-        // const ogName = req.query.ogName;
-        // console.log(`EMAIL: ${email}, OGNAME: ${ogName}`);
+        const {account} = req.account;
+        const {email, id} = account;
+        const ogName = req.query.ogName;
+        console.log(`EMAIL: ${email}, OGNAME: ${ogName}`);
 
-        // const userID = getUsersID(email);
+        let sql = "SELECT path FROM UserMedia WHERE user_id=? AND og_name=?";
+        const params = [id, ogName];
 
-        // let filePath = "";
-        // let sql = "SELECT path FROM UserMedia WHERE user_id=? AND og_name=?";
-        // const params = [userID, ogName];
+        //Do query to get the file path
+        db.get(sql, params, (err, row)=>{
+            if(err) return console.error(err.message);
+            if(!row) return console.error("File not found!");
+            const filePath = row.path;
+            console.log(filePath);
+            sql = 'DELETE FROM UserMedia WHERE user_id=? AND og_name=?';
+            db.run(sql, params, (err) =>{
+                if(err){
+                    res.status(500).send('Could not remove the specified file');
+                    return console.log("Couldn't remove file!");
+                }
+                console.log("Successfully deleted the record!");
 
-        // //Do query to get the file path
-        // db.get(sql, params, (err, row)=>{
-        //     if(err) return console.error(err.message);
-        //     if(!row) return console.error("File not found!");
-        //     filePath = row.path;
-        //     console.log(filePath);
-        // });
-        // sql = 'DELETE FROM UserMedia WHERE user_id=? AND og_name=?';
-        // db.run(sql, params, (err) =>{
-        //     if(err){
-        //         res.status(500).send('Could not remove the specified file');
-        //         return console.log("Couldn't remove file!");
-        //     }
-        //     console.log("Successfully deleted the record!");
-
-        //     fs.unlinkSync(filePath,(err) => {
-        //         if(err){
-        //             res.status(500).send('Could not remove the specified file');
-        //             return console.log("Couldn't remove file!");
-        //         }                
-        //         res.status(200).send("Successfully removed the file!");
-        //     }); 
-        // });
+                // fs.unlinkSync(filePath,(err) => {
+                //     if(err){
+                //         res.status(500).send('Could not remove the specified file');
+                //         return console.log("Couldn't remove file!");
+                //     }                
+                //     console.log('Sucessfully deleted from file system!');
+                //     res.status(200).send("Successfully removed the file!");
+                // }); 
+                res.status(200).send("Successfully removed the file!");
+            });
+        });
     }
 
     const downloadMedia = async (req, res) =>{

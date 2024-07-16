@@ -25,6 +25,7 @@ const ViewOptions = ({itemView, setItemView}) =>{
     return(
         <div className="viewOptions w-3/4 flex items-center justify-between">
             <Select 
+                placeholder="Sort By"
                 options={sortOptions} 
                 onChange={(option) => setFileSort(option.value)}
             />

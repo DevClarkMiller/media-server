@@ -42,10 +42,15 @@ const post = async (path, data, config) =>{
     }
 }
 
-const del = async (path, config) =>{
+const del = async (path, params, config) =>{
     let response;
     try{
-        response = await api.delete(path, config)
+        if(params){
+            const fullUrl = path + '?' + new URLSearchParams(params).toString();
+            response = await api.delete(fullUrl, config);   
+        }else{
+            response = await api.delete(path, config)
+        }
         return response;
     }catch(err){
         verboseErrorOutput(err);
