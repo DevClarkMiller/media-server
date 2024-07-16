@@ -118,7 +118,6 @@ module.exports = (dbObj) =>{
                     sql = 'SELECT * FROM UserMedia WHERE user_id = ? AND og_name = ?';
                     db.get(sql, [userID, file.name], (err, row) => {
                         if (err) return res.status(500).send(err.message);
-                        console.log('Newly inserted record:', row);
 
                         // Move the file to the desired location
                         file.mv(filepath, err => {

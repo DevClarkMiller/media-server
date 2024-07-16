@@ -14,17 +14,6 @@ const UserFiles = () =>{
     //Context
     const { renderedFiles, setRenderedFiles, itemView, setFiles, files } = useContext(FileContext);
 
-    //Func is placed up here for limited rendering
-    const checkOpacity = (element, setClass) =>{
-        const computedStyle = window.getComputedStyle(element);
-        const opacityValue = computedStyle.getPropertyValue('opacity');
-        if(opacityValue === "0"){
-            setClass("size-0 max-h-0 max-w-0 select-none hover:cursor-default");
-        }else if(opacityValue === "1"){
-            setClass("");
-        }
-    }
-
     const downloadFile = async (filename, setDownloadState) =>{
         const trackDownloadProgress = (progressEvent) =>{
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -79,6 +68,35 @@ const UserFiles = () =>{
         alert("File now deleted!");
         setFiles(files.filter((file) => file.og_name !== filename));
     }
+
+    //Func is placed up here for limited rendering
+    const checkOpacity = (element, setClass) =>{
+        const computedStyle = window.getComputedStyle(element);
+        const opacityValue = computedStyle.getPropertyValue('opacity');
+        if(opacityValue === "0"){
+            setClass("size-0 max-h-0 max-w-0 select-none hover:cursor-default");
+        }else if(opacityValue === "1"){
+            setClass("");
+        }
+    }
+
+    const assignListeners = (btnRef, textRef, setBtnClass, setTextClass) =>{
+        const btnElem = btnRef.current;
+        const textElem = textRef.current;
+
+        if(!btnElem || !textElem) return;
+
+        checkOpacity(btnElem, setBtnClass);
+        checkOpacity(textElem, setTextClass);
+
+        btnElem.addEventListener('transitionend', (e) =>{
+            if (e.propertyName === 'opacity') checkOpacity(btnElem, setBtnClass);
+        });
+
+        textElem.addEventListener('transitionend', (e) =>{
+            if (e.propertyName === 'opacity') checkOpacity(textElem, setTextClass);
+        });
+    }
     
     return(
         <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
@@ -91,6 +109,7 @@ const UserFiles = () =>{
                         deleteFile={deleteFile} 
                         itemView={itemView} 
                         file={file}
+                        assignListeners={assignListeners}
                     />
                 ))
             }

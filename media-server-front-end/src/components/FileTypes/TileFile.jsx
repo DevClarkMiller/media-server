@@ -7,7 +7,7 @@ import { IoCloudDownloadOutline, IoCloudDownload, IoTrashOutline, IoTrashSharp }
 import { FileDetailContext } from "../File";
 
 const TileFile = () =>{
-    const { hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile } = useContext(FileDetailContext);
+    const { hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile, assignListeners } = useContext(FileDetailContext);
 
     //State
     const [textClass, setTextClass] = useState("");
@@ -18,26 +18,8 @@ const TileFile = () =>{
     const textRef = useRef();
 
     //Adds listeners to the transitioned property for the text and button when the component renders
-    useEffect(() =>{
-        const btnElem = btnRef?.current;
-        const textElem = textRef?.current;
-
-        if(!btnElem || !textElem) {
-            return console.error("One of the refs weren't found!");
-        }
-
-        checkOpacity(btnElem, setBtnClass);
-        checkOpacity(textElem, setTextClass);
-
-        btnElem.addEventListener('transitionend', (e) =>{
-            if (e.propertyName === 'opacity') checkOpacity(btnElem, setBtnClass);
-        });
-
-        textElem.addEventListener('transitionend', (e) =>{
-            if (e.propertyName === 'opacity') checkOpacity(textElem, setTextClass);
-        });
-    }, [btnRef, textRef]);
-
+    useEffect(() =>{ assignListeners(btnRef, textRef, setBtnClass, setTextClass); }, [btnRef, textRef]);
+    
     return(
         <>
             <p ref={textRef} className={`nice-trans hover:cursor-pointer max-one-line ${!hovering&& "max-max flex-grow"} ${hovering && "opacity-0"} ${textClass}`}>{displayName}</p>
