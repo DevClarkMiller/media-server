@@ -24,6 +24,17 @@ module.exports = (dbObj) =>{
         });
     }
 
+    const deleteFile = async filename =>{
+        return new Promise((resolve, reject) =>{
+            fs.unlink(filename, (err) => {
+                if(err){
+                    reject(err);
+                }                
+                resolve('Successfully removed the file!');
+            }); 
+        });
+    }
+
     const getMedia = async (req, res) =>{
         console.log('Hit getMedia controller');
 
@@ -164,22 +175,22 @@ module.exports = (dbObj) =>{
             const filePath = row.path;
             console.log(filePath);
             sql = 'DELETE FROM UserMedia WHERE user_id=? AND og_name=?';
-            db.run(sql, params, (err) =>{
+            db.run(sql, params, async (err) =>{
                 if(err){
                     res.status(500).send('Could not remove the specified file');
                     return console.log("Couldn't remove file!");
                 }
                 console.log("Successfully deleted the record!");
+                deleteFile(filePath)
+                .then(msg =>{
+                    console.log(msg);
+                    res.status(200).send(msg);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send('Could not remove the specified file')
+                });
 
-                // fs.unlinkSync(filePath,(err) => {
-                //     if(err){
-                //         res.status(500).send('Could not remove the specified file');
-                //         return console.log("Couldn't remove file!");
-                //     }                
-                //     console.log('Sucessfully deleted from file system!');
-                //     res.status(200).send("Successfully removed the file!");
-                // }); 
-                res.status(200).send("Successfully removed the file!");
             });
         });
     }
