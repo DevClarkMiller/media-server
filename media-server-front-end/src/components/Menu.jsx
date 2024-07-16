@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState, useContext, useMemo } from "react";
-import fetchAll from '../functions/fetch';
 
 //Components
+import Select from 'react-select';
 
 //Context
 import { FileContext } from "../App";
 import { LoginContext } from "../context/LoginContext";
+
+//Functions
+import fetchAll from '../functions/fetch';
 
 //Icons
 import { CiCirclePlus, CiSearch } from "react-icons/ci";
@@ -13,12 +16,18 @@ import { RxHamburgerMenu, RxGrid  } from "react-icons/rx";
 
 
 const ViewOptions = ({itemView, setItemView}) =>{
+    const {sortOptions, fileSort, setFileSort} = useContext(FileContext);
+
     const isSquare = useMemo(() => (itemView === "square"), [itemView]);
 
     const selectedClass = "text-appleBlue hover:text-appleLighterBlue";
 
     return(
-        <div className="viewOptions w-3/4 flex items-center justify-end">
+        <div className="viewOptions w-3/4 flex items-center justify-between">
+            <Select 
+                options={sortOptions} 
+                onChange={(option) => setFileSort(option.value)}
+            />
             <div className="changeItemView flex items-center text-white text-3xl gap-3">
                 <h3 className="hidden lg:inline-block">Display Type</h3>
                 <button onClick={() => setItemView("tile")} className={`tileBtn nice-trans ${!isSquare ? selectedClass: "hover:text-appleLightBlue"}`}><RxHamburgerMenu /></button>
@@ -46,7 +55,6 @@ const Menu = () =>{
     //State
     const [newFile, setNewFile] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(null);
-
 
     //Refs
     const fileRef = useRef();

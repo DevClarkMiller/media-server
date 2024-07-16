@@ -21,12 +21,26 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  //Enums
+  const SortEnum = Object.freeze({
+    name: "og_name",
+    ext: "ext",
+    fileSize: "file_size"
+  });
+
+  const sortOptions = [
+    {value: SortEnum.name, label: "By Name"}, 
+    {value: SortEnum.ext, label: "By Ext"},
+    {value: SortEnum.fileSize, label: "By Size"}
+  ];
+
   //Context
   const {loggedIn, setLoggedIn, account, setAccount, grabAccount} = useContext(LoginContext);
 
   //State
   const [files, setFiles] = useState([]);
   const [renderedFiles, setRendererdFiles] = useState([]);
+  const [fileSort, setFileSort] = useState(SortEnum.name);
   const [search, setSearch] = useState("");
   const [itemView, setItemView] = useState("tile"); //Either tile or square
 
@@ -63,9 +77,20 @@ function App() {
     getFiles();
   }, [loggedIn]);
 
+  //For tracking changes in the fileSort state
+  useEffect(() =>{
+    if(!fileSort) return;
+    console.log(fileSort);
+    const sortedFiles = [...files].sort((file1, file2) =>(
+      file1[fileSort] - file2[fileSort]
+    ));
+    setRendererdFiles(sortedFiles);
+    console.log(sortedFiles);
+  }, [files, fileSort]);
+
   return (
     <div className="App flex flex-col items-center bg-deepBlack h-screen min-h-screen gap-5 pt-5">
-      <FileContext.Provider value={{files, setFiles, search, setSearch, renderedFiles, setRendererdFiles, itemView, setItemView}}>
+      <FileContext.Provider value={{files, setFiles, search, setSearch, renderedFiles, setRendererdFiles, itemView, setItemView, fileSort, setFileSort, sortOptions}}>
         <Header />
         <Routes>
           <Route path='/' element={<Content />}/>

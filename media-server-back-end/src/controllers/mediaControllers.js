@@ -33,7 +33,7 @@ module.exports = (dbObj) =>{
         if(!userID) return res.status(404).send("Account not found");
 
         //Sends only safe data
-        const sql = 'SELECT date_added, ext, og_name, mimetype FROM UserMedia WHERE user_id = ?';
+        const sql = 'SELECT date_added, ext, og_name, mimetype, file_size FROM UserMedia WHERE user_id = ?';
         db.all(sql, [userID], (err, rows)=>{
             if(err){
                 return console.error(err.message);
