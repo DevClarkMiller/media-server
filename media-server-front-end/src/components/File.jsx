@@ -84,8 +84,9 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
 
     const btnsShow = useMemo(() => menuActive && !editing, [menuActive, editing]);
 
-
-    useEffect(() =>{ if(isSquare) fetchFileURL(file, fileFormat, setFileURL); }, [file?.og_name, fileFormat]);
+    useEffect(() =>{ 
+        if(isSquare && !fileURL) fetchFileURL(file, fileFormat, setFileURL); 
+    }, [file?.og_name, fileFormat, isSquare]);
 
     //Adds listeners to the transitioned property for the text and button when the component renders
     useEffect(() =>{ assignListeners(btnRef, textRef, setBtnClass, setTextClass); }, [btnRef, textRef]);
@@ -125,8 +126,13 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                                 <FileControls btnRef={btnRef} btnClass={btnClass} btnsShow={btnsShow}/>
                             </div>
      
-                            {fileFormat.isImage&&isSquare&&fileURL&&
-                                <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
+                            {fileFormat.isImage&&isSquare&&
+                                <>{fileURL ?
+                                    <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>
+                                    :
+                                    <LoadingIcons.TailSpin className="size-3/4 overflow-hidden" stroke="#000000" strokeOpacity={.75} speed={.75}/>
+                                }</>
+                            }
                             {fileFormat.isVideo&&isSquare&&
                                 <>{fileURL ?
                                     <video ref={mediaRef} className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>
@@ -135,10 +141,14 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                                 }</>
                             }
                                 
-                            {fileFormat.isAudio&&isSquare&&fileURL&&
-                                <div className="size-full flex items-center justify-center flex-grow">
-                                    <audio className="w-full h-12 overflow-hidden" src={fileURL} controls />
-                                </div>
+                            {fileFormat.isAudio&&isSquare&&
+                                <>{fileURL ?
+                                    <div className="size-full flex items-center justify-center flex-grow">
+                                        <audio className="w-full h-12 overflow-hidden" src={fileURL} controls />
+                                    </div>
+                                    :
+                                    <LoadingIcons.TailSpin className="size-3/4 overflow-hidden" stroke="#000000" strokeOpacity={.75} speed={.75}/>
+                                }</>
                             }
                         </> :
                         <progress value={downloadProgress}/>
