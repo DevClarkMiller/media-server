@@ -13,9 +13,9 @@ export const FileDetailContext = createContext();
 
 const FileHeader = ({textRef, textClass, filename}) =>{
     //Context
-    const {editing, hovering, onRename, onBlurInput, setNewFileName, newFileName, file} = useContext(FileDetailContext);
+    const {editing, menuActive, onRename, onBlurInput, setNewFileName, newFileName, file} = useContext(FileDetailContext);
 
-    const shouldHide = useMemo(() => hovering || editing,[hovering, editing]);
+    const shouldHide = useMemo(() => menuActive || editing,[menuActive, editing]);
     
     return(
         <>
@@ -43,9 +43,9 @@ const FileControls = ({btnRef, btnClass, btnsShow }) =>{
 
     return(
         <div ref={btnRef} className={`flex items-center gap-2`}>
-            <button  onClick={() => downloadFile(file.og_name, setDownloadProgress)}><IoCloudDownloadOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-appleLightBlue ${!btnsShow && "opacity-0 w-0"} ${btnClass}`} /></button>
-            <button onClick={() => setEditing(true)}><IoCreateOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-appleLightBlue ${!btnsShow && "opacity-0 w-0"} ${btnClass}`}/></button>
-            <button onClick={() => deleteFile(file.og_name)} ><IoTrashOutline className={`nice-trans text-lg hover:cursor-pointer hover:text-red-500 ${!btnsShow && "opacity-0 w-0"} ${btnClass}`}/></button>
+            <button className="hover:text-appleLightBlue text-lg" onClick={() => setEditing(true)}><IoCreateOutline className={`nice-trans ${!btnsShow && "opacity-0 w-0"} ${btnClass}`}/></button>
+            <button className="hover:text-appleLightBlue text-lg"  onClick={() => downloadFile(file.og_name, setDownloadProgress)}><IoCloudDownloadOutline className={`nice-trans ${!btnsShow && "opacity-0 w-0"} ${btnClass}`} /></button>
+            <button className="hover:text-red-500 text-lg" onClick={() => deleteFile(file.og_name)} ><IoTrashOutline className={`nice-trans ${!btnsShow && "opacity-0 w-0"} ${btnClass}`}/></button>
         </div>
     );
 }
@@ -56,17 +56,12 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
         file?.mimetype?.split('/')[0]
     ), [file?.mimetype]);
 
-    const isImage = useMemo(() => (
-        fileType === "image"
-    ), [fileType]);
-
-    const isVideo = useMemo(() => (
-        fileType === "video"
-    ), [fileType]);
-
-    const isAudio = useMemo(() => (
-        fileType === "audio"
-    ), [fileType]);
+    const fileFormat = useMemo(() =>({
+        hasContent: fileType === "image" || fileType === "video" || fileType === "audio",
+        isImage: fileType === "image",
+        isVideo: fileType === "video",
+        isAudio: fileType === "audio"
+    }), [fileType]);
 
     const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
         const baseUrl = `${process.env.REACT_APP_API_BASE}/media/download`;
@@ -86,14 +81,14 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
     const isSquare = useMemo(() => (itemView==="square"), [itemView]);
 
     //State
-    const [hovering, setHovering] = useState(false);
+    const [menuActive, setMenuActive] = useState(false);
     const [editing, setEditing] = useState(false);
     const [newFileName, setNewFileName] = useState(file?.og_name);
     const [downloadProgress, setDownloadProgress] = useState(null); //For the progress bar
     const [textClass, setTextClass] = useState("");
     const [btnClass, setBtnClass] = useState("");
 
-    const btnsShow = useMemo(() => hovering && !editing, [hovering, editing]);
+    const btnsShow = useMemo(() => menuActive && !editing, [menuActive, editing]);
 
     //Refs
     const containerRef = useRef();
@@ -105,12 +100,12 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
 
     const checkToSet = () =>{
         if(editing) return;
-        setHovering(true);
+        setMenuActive(true);
     }
 
     const checkUnSet = () =>{
         if(editing) return;
-        setHovering(false);
+        setMenuActive(false);
     }
 
     //Memoized functions
@@ -124,13 +119,13 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
         console.log();
         setNewFileName(file?.og_name);
         setEditing(false);
-        setHovering(false);
+        setMenuActive(false);
     }
 
     return(
-        <FileDetailContext.Provider value={{hovering, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile, assignListeners, editing, setEditing, newFileName, setNewFileName, onRename, onBlurInput}}>
+        <FileDetailContext.Provider value={{menuActive, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile, assignListeners, editing, setEditing, newFileName, setNewFileName, onRename, onBlurInput}}>
             <div ref={containerRef} className={`nice-trans w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={checkToSet} onMouseLeave={checkUnSet}>
-                <BoxWrapper  className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&(isImage||isVideo||isAudio)&&"flex-col justify-between"}`}>
+                <BoxWrapper className={`container file-container ${isSquare&&fileFormat.hasContent&&"flex-col justify-between"}`}>
                     {!downloadProgress ?
                         <>
                             <div className={`h-10 w-full flex items-center justify-center`}>
@@ -138,11 +133,13 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                                 <FileControls btnRef={btnRef} btnClass={btnClass} btnsShow={btnsShow}/>
                             </div>
      
-                            {isImage&&isSquare&&
+                            {fileFormat.isImage&&isSquare&&
                                 <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
-                            {isVideo&&isSquare&&
+
+                            {fileFormat.isVideo&&isSquare&&
                                 <video className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
-                            {isAudio&&isSquare&&
+                                
+                            {fileFormat.isAudio&&isSquare&&
                                 <div className="size-full flex items-center justify-center flex-grow">
                                     <audio className="w-full h-12 overflow-hidden" src={fileURL} controls />
                                 </div>
