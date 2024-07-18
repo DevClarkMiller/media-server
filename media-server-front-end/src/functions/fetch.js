@@ -1,10 +1,18 @@
 import api from './api'
 
-const verboseErrorOutput = (err) =>{
+const verboseErrorOutput = err =>{
     if(err.response){
         console.log(err.response.data);
         console.log(err.response.status);
         console.log(err.response.headers);
+        console.log(`Error: ${err.response.data.error}`);
+      }else{
+        console.log(`Error: ${err.message}`);
+    }  
+}
+const simpleErrorOutput = err =>{
+    if(err.response){
+        console.log(err.response.status);
         console.log(`Error: ${err.response.data.error}`);
       }else{
         console.log(`Error: ${err.message}`);
@@ -27,7 +35,12 @@ const get = async (path, params, config = {}) =>{
         }
         return response;
     }catch(err){
-        verboseErrorOutput(err);
+        if(process.env.REACT_APP_VERBOSE_ERROR === "true"){
+            verboseErrorOutput(err);
+        }else{
+            simpleErrorOutput(err);
+        }
+        return response;
     }
 }
 
@@ -37,7 +50,11 @@ const post = async (path, data, config) =>{
         response = config ? await api.post(path, data, config) : await api.post(path, data);
         return response;
     }catch(err){
-        verboseErrorOutput(err);
+        if(process.env.REACT_APP_VERBOSE_ERROR === "true"){
+            verboseErrorOutput(err);
+        }else{
+            simpleErrorOutput(err);
+        }
         return response;
     }
 }
@@ -53,7 +70,11 @@ const del = async (path, params, config) =>{
         }
         return response;
     }catch(err){
-        verboseErrorOutput(err);
+        if(process.env.REACT_APP_VERBOSE_ERROR === "true"){
+            verboseErrorOutput(err);
+        }else{
+            simpleErrorOutput(err);
+        }
         return response;
     }
 }
@@ -64,7 +85,11 @@ const put = async (path, data, config) =>{
         response = config ? await api.put(path, data, config) : await api.put(path, data);
         return response;
     }catch(err){
-        verboseErrorOutput(err)
+        if(process.env.REACT_APP_VERBOSE_ERROR === "true"){
+            verboseErrorOutput(err);
+        }else{
+            simpleErrorOutput(err);
+        }
         return response;
     }
 }
