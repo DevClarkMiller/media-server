@@ -303,13 +303,18 @@ module.exports = (dbObj) =>{
             }else if(isCompressed && mediaType === "video"){
                 try{
                     console.log('Going to try to downscale video');
-                    const downscaledPath = await conversion.downScaleVideo(filePath, stamped_filename, ext, "320");
+                    const downscaledPath = await conversion.downScaleVideo(filePath, stamped_filename, ext, "480");
                     res.sendFile(downscaledPath, (err) =>{
-                        if (err) return console.error(err.message);
+                        if (err) {
+                            console.error("Send file error: ", err.message);
+                        }else{
+                            console.log(`${filename} has been sent downscaled!`);
+                        }
+                        //Unlink the file no matter what
                         fs.unlink(downscaledPath, (err) =>{
                             if(err) return console.error("Temp file couldn't be deleted!");
                             console.log('Temp file successfully deleted!');
-                        });                        
+                        });                
                     });
                 }catch(err){
                     console.error(err);

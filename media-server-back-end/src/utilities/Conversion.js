@@ -12,16 +12,10 @@ module.exports = () =>{
                 command
                 .size(`${width}x?`)
                 .saveToFile(outputPath)
-                // .on('start', (commandLine) => {
-                //     console.log('ffmpeg started conversion', commandLine)
-                // })
                 .on('error', (err) => {
                     console.error('Error during ffmpeg process:', err);
                     reject(err);    //Passes error upwards
                 })
-                // .on('progress', function (progress) {
-                //     console.log('ffmpeg-output', Math.round(progress.percent))
-                // })
                 .on('end', () =>{
                     console.log('Conversion is finished!');
                     resolve(outputPath);

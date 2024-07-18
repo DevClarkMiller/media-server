@@ -51,6 +51,8 @@ const FileControls = ({btnRef, btnClass, btnsShow }) =>{
 }
 
 const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignListeners, renameFile}) =>{
+    console.log('File rendered');
+
     //Memo calcs
     const fileType = useMemo(() => (
         file?.mimetype?.split('/')[0]
@@ -64,6 +66,7 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
     }), [fileType]);
 
     const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
+        if(!file) return;
         const baseUrl = `${process.env.REACT_APP_API_BASE}/media/download`;
         const options = {
             withCredentials: true,
@@ -71,12 +74,12 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
         };
 
         const queryParams = new URLSearchParams({
-            filename: file.og_name,
+            filename: file?.og_name,
             isCompressed: true
         }, options);
-
+        console.log("fileURL func called");
         return `${baseUrl}?${queryParams.toString()}`;  //The url in which the file can be accessed
-    }, [file?.og_name]);
+    }, [file]);
 
     const isSquare = useMemo(() => (itemView==="square"), [itemView]);
 
@@ -133,13 +136,13 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                                 <FileControls btnRef={btnRef} btnClass={btnClass} btnsShow={btnsShow}/>
                             </div>
      
-                            {fileFormat.isImage&&isSquare&&
+                            {fileFormat.isImage&&isSquare&&fileURL&&
                                 <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
 
-                            {fileFormat.isVideo&&isSquare&&
+                            {fileFormat.isVideo&&isSquare&&fileURL&&
                                 <video className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
                                 
-                            {fileFormat.isAudio&&isSquare&&
+                            {fileFormat.isAudio&&isSquare&&fileURL&&
                                 <div className="size-full flex items-center justify-center flex-grow">
                                     <audio className="w-full h-12 overflow-hidden" src={fileURL} controls />
                                 </div>
