@@ -83,7 +83,14 @@ const UserFiles = () =>{
         //Change the old file details to the new info
         let filesCpy = [...files];
         const index = filesCpy.findIndex((file) => file.og_name === oldName);
+        console.log(`FILE INDEX: ${index}`);
+        console.log('OLD FILE: ');
+        console.log(filesCpy[index]);
         filesCpy[index] = response.data;
+        console.log('NEW FILE: ');
+        console.log(filesCpy[index]);
+        
+        console.log(filesCpy);
         setFiles(filesCpy);
     }
 

@@ -117,7 +117,7 @@ module.exports = (dbObj) =>{
             //When server is actually active, change the path to be relative and include the server url at beginning.
             //also keep files in a static folder
 
-            const basepath = `/var/uploads/${email}/`;
+            const basepath = `${process.env.BASE_FILE_PATH}/${email}/`; //Left up to the user to add in their .env
             const filepath = `${basepath}${fileName}`;
             fs.mkdirSync(basepath, { recursive: true });    //Creates filepath if it doesn't exist
 
@@ -210,12 +210,9 @@ module.exports = (dbObj) =>{
                     //4. Return updated file
                     console.log('Successfully renamed your file!');
                     res.json({
-                        user_id: id,
-                        name: newName,
-                        path: newPath,
                         date_added: date_added,
                         ext: ext,
-                        og_name: ogName,
+                        og_name: newName,
                         mimetype: mimetype,
                         file_size: file_size
                     });

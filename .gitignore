@@ -13,6 +13,8 @@ uploads/
 media.db
 
 .env
+.env.development
+.env.production
 
 # frontend
 media-server-front-end/build/

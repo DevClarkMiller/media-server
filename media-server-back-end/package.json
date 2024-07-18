@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "push-prod": "C:\\projects\\media-server\\media-server-back-end\\push-prod.bat",
-    "start": "node /var/drive-backend/src/server.js"
+    "start:dev": "cross-env NODE_ENV=development node ./src/server.js",
+    "start:prod": "cross-env NODE_ENV=production node ./src/server.js"
   },
   "keywords": [],
   "author": "Clark Miller",
@@ -27,5 +28,8 @@
     "path": "^0.12.7",
     "sharp": "^0.33.4",
     "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import {Routes, Route, useNavigate, useLocation} from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 //Components
 import Header from "./components/Header";
@@ -35,7 +35,7 @@ function App() {
   ];
 
   //Context
-  const {loggedIn, setLoggedIn, account, setAccount, grabAccount} = useContext(LoginContext);
+  const {loggedIn, grabAccount} = useContext(LoginContext);
 
   //State
   const [files, setFiles] = useState([]);

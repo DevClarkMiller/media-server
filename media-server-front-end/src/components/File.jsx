@@ -13,22 +13,21 @@ export const FileDetailContext = createContext();
 
 const FileHeader = ({textRef, textClass, filename}) =>{
     //Context
-    const {editing, hovering, onRename, onBlurInput, setNewFileName, newFileName} = useContext(FileDetailContext);
+    const {editing, hovering, onRename, onBlurInput, setNewFileName, newFileName, file} = useContext(FileDetailContext);
 
     const shouldHide = useMemo(() => hovering || editing,[hovering, editing]);
-    useEffect(() =>console.log(`HOVERING: ${hovering}, EDITING: ${editing}`), [hovering, editing]);
     
     return(
         <>
-            {<p ref={textRef} className={`nice-trans hover:cursor-pointer max-one-line opacity-100 ${!shouldHide&& "max-max flex-grow"} ${shouldHide && "!opacity-0"} ${textClass}`}>{filename}</p>}
+            {<p ref={textRef} className={`nice-trans hover:cursor-pointer max-one-line opacity-100 ${!shouldHide&& "max-max flex-grow"} ${shouldHide && "!opacity-0"} ${textClass}`}>{file?.og_name}</p>}
             {editing&&
                 <form onSubmit={onRename}>
                     <LabelInput 
                     onBlur={onBlurInput}
                     labelClassName="hidden"
                     inputClassName="text-center border rounded"
-                    id={`edit${filename}`}
-                    name={filename}
+                    id={`edit${file?.og_name}`}
+                    name={file?.og_name}
                     value={newFileName}
                     onChange={(e) => setNewFileName(e.target.value)}
                 >Edit File Name</LabelInput>
@@ -70,7 +69,7 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
     ), [fileType]);
 
     const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
-        const baseUrl = 'http://drive.clarkmiller.ca/api/media/download';
+        const baseUrl = `${process.env.REACT_APP_API_BASE}/media/download`;
         const options = {
             withCredentials: true,
             credentials: "include"
@@ -122,7 +121,7 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
     }, [file, newFileName]);
 
     const onBlurInput = () =>{
-        console.log('Input blurred');
+        console.log();
         setNewFileName(file?.og_name);
         setEditing(false);
         setHovering(false);
@@ -135,7 +134,7 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                     {!downloadProgress ?
                         <>
                             <div className={`h-10 w-full flex items-center justify-center`}>
-                                <FileHeader filename={file.og_name} onBlurInput={onBlurInput} textClass={textClass} textRef={textRef}/>
+                                <FileHeader onBlurInput={onBlurInput} textClass={textClass} textRef={textRef}/>
                                 <FileControls btnRef={btnRef} btnClass={btnClass} btnsShow={btnsShow}/>
                             </div>
      
