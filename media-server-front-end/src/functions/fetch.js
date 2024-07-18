@@ -58,6 +58,16 @@ const del = async (path, params, config) =>{
     }
 }
 
+const put = async (path, data, config) =>{
+    let response;
+    try{
+        response = config ? await api.post(path, data, config) : await api.post(path, data);
+    }catch(err){
+        verboseErrorOutput(err)
+        return response;
+    }
+}
+
 export default {
-    get, post, del
+    get, post, del, put
 }

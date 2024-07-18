@@ -69,6 +69,18 @@ const UserFiles = () =>{
         setFiles(files.filter((file) => file.og_name !== filename));
     }
 
+    const renameFile = async (oldName, newName) =>{
+        const response = await fetchAll.put("/media",{
+            ogName: oldName,
+            newName: newName
+        },{
+            withCredentials: true,
+            credentials: "include",
+        });
+
+        if(response.status != 200) return alert('Something went wrong when renaming your file!');
+    }
+
     //Func is placed up here for limited rendering
     const checkOpacity = (element, setClass) =>{
         const computedStyle = window.getComputedStyle(element);
@@ -107,6 +119,7 @@ const UserFiles = () =>{
                         key={file.og_name} 
                         downloadFile={downloadFile} 
                         deleteFile={deleteFile} 
+                        renameFile={renameFile}
                         itemView={itemView} 
                         file={file}
                         assignListeners={assignListeners}

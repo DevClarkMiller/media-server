@@ -11,7 +11,7 @@ import SquareFile from "./FileTypes/SquareFile";
 
 export const FileDetailContext = createContext();
 
-const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignListeners}) =>{
+const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignListeners, renameFile}) =>{
     //Memo calcs
     const fileType = useMemo(() => (
         file?.mimetype?.split('/')[0]
@@ -50,13 +50,15 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
 
     //State
     const [hovering, setHovering] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const [newFileName, setNewFileName] = useState("");
     const [downloadProgress, setDownloadProgress] = useState(null); //For the progress bar
 
     //Refs
     const containerRef = useRef();
 
     return(
-        <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile, assignListeners}}>
+        <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile, assignListeners, renameFile, editing, setEditing, newFileName, setNewFileName}}>
             <div ref={containerRef} className={`w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
                 <BoxWrapper  className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&(isImage||isVideo||isAudio)&&"flex-col justify-between"}`}>
                     {!downloadProgress ?
