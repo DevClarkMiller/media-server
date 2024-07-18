@@ -134,7 +134,7 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                             }
                             {fileFormat.isVideo&&isSquare&&
                                 <>{fileURL ?
-                                    <div className="videoWrapper size-full flex items-center justify-center">
+                                    <div className="videoWrapper size-full flex items-center justify-center overflow-hidden">
                                         <video className="size-fit overflow-hidden" src={fileURL} muted controls="controls" title={file.og_name}></video>
                                     </div>
                                     :
