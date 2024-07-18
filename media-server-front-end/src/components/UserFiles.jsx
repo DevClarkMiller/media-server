@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useCallback } from "react";
 
 //Context
 import { FileContext } from "../App";
@@ -63,7 +63,6 @@ const UserFiles = () =>{
             withCredentials: true,
             credentials: "include",
         });
-        console.log(response.status);
         if(!response || response?.status !== 200) return alert("Couldn't delete file");
         alert("File now deleted!");
         setFiles(files.filter((file) => file.og_name !== filename));
@@ -115,6 +114,40 @@ const UserFiles = () =>{
             if (e.propertyName === 'opacity') checkOpacity(textElem, setTextClass);
         });
     }
+
+    const fetchFileURL = async (file, fileFormat, setFileURL) =>{
+        if(!file || !fileFormat) return;
+        if(fileFormat.isVideo){
+            const options = {
+                responseType: 'blob', // Set response type to blob for file download
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true,
+                credentials: "include",
+            }
+
+            const response = await fetchAll.get("/media/download", {
+                filename: file?.og_name,
+                isCompressed: true
+            }, options);
+            if(response.status !== 200) return;
+            const blob = response.data;
+            const url = window.URL.createObjectURL(blob); 
+            return setFileURL(url);
+        }
+
+        const baseUrl = `${process.env.REACT_APP_API_BASE}/media/download`;
+
+        const options = {
+            withCredentials: true,
+            credentials: "include"
+        };
+
+        const queryParams = new URLSearchParams({
+            filename: file?.og_name,
+            isCompressed: true
+        }, options);
+        setFileURL(`${baseUrl}?${queryParams.toString()}`);  //The url in which the file can be accessed
+    }
     
     return(
         <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
@@ -128,6 +161,7 @@ const UserFiles = () =>{
                     itemView={itemView} 
                     file={file}
                     assignListeners={assignListeners}
+                    fetchFileURL={fetchFileURL}
                 />
             ))}
         </div>

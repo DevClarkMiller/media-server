@@ -6,6 +6,7 @@ import LabelInput from "./utilities/LabelInput";
 
 //Icons
 import { IoCloudDownloadOutline, IoCloudDownload, IoTrashOutline, IoTrashSharp, IoCreateOutline, IoCreate } from "react-icons/io5";
+import LoadingIcons from 'react-loading-icons'
 
 //Functions 
 import fetchAll from "../functions/fetch";
@@ -51,7 +52,7 @@ const FileControls = ({btnRef, btnClass, btnsShow }) =>{
     );
 }
 
-const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignListeners, renameFile}) =>{
+const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignListeners, renameFile, fetchFileURL}) =>{
     //Memo calcs
     const fileType = useMemo(() => (
         file?.mimetype?.split('/')[0]
@@ -83,43 +84,8 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
 
     const btnsShow = useMemo(() => menuActive && !editing, [menuActive, editing]);
 
-    const fetchFileURL = async () =>{
-        if(!file || !fileFormat) return;
-        if(fileFormat.isVideo){
-            const options = {
-                responseType: 'blob', // Set response type to blob for file download
-                headers: { 'Content-Type': 'application/json' },
-                withCredentials: true,
-                credentials: "include",
-            }
 
-            const response = await fetchAll.get("/media/download", {
-                filename: file?.og_name,
-                isCompressed: true
-            }, options);
-            if(response.status !== 200) return;
-            const blob = response.data;
-            const url = window.URL.createObjectURL(blob); 
-            return setFileURL(url);
-        }
-
-        const baseUrl = `${process.env.REACT_APP_API_BASE}/media/download`;
-
-        const options = {
-            withCredentials: true,
-            credentials: "include"
-        };
-
-        const queryParams = new URLSearchParams({
-            filename: file?.og_name,
-            isCompressed: true
-        }, options);
-        setFileURL(`${baseUrl}?${queryParams.toString()}`);  //The url in which the file can be accessed
-    }
-
-    useEffect(() =>{
-        fetchFileURL();
-    }, [file?.og_name, fileFormat]);
+    useEffect(() =>{ if(isSquare) fetchFileURL(file, fileFormat, setFileURL); }, [file?.og_name, fileFormat]);
 
     //Adds listeners to the transitioned property for the text and button when the component renders
     useEffect(() =>{ assignListeners(btnRef, textRef, setBtnClass, setTextClass); }, [btnRef, textRef]);
@@ -161,9 +127,13 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
      
                             {fileFormat.isImage&&isSquare&&fileURL&&
                                 <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
-
-                            {fileFormat.isVideo&&isSquare&&fileURL&&
-                                <video ref={mediaRef} className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
+                            {fileFormat.isVideo&&isSquare&&
+                                <>{fileURL ?
+                                    <video ref={mediaRef} className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>
+                                    :
+                                    <LoadingIcons.TailSpin className="size-3/4 overflow-hidden" stroke="#000000" strokeOpacity={.75} speed={.75}/>
+                                }</>
+                            }
                                 
                             {fileFormat.isAudio&&isSquare&&fileURL&&
                                 <div className="size-full flex items-center justify-center flex-grow">
