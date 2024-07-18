@@ -1,9 +1,10 @@
-const path = require('path');
-
 module.exports = (dbObj) =>{
     const fs = require('fs');
     const db = dbObj.DB;
     const sharp = require('sharp');
+    const conversion = require('../utilities/Conversion')();
+    const ffmpeg = require('fluent-ffmpeg');
+    const {PassThrough} = require('stream');
 
     //Gets crucial details about how much storage a user has left
     const checkStorageUsage = (userID) =>{
@@ -91,7 +92,7 @@ module.exports = (dbObj) =>{
             if(!fileItem) return res.status(500).send("File not uploaded!");
 
             let file = fileItem?.file;
-            file.name = file.name.replace(" ", "");
+            file.name = file.name.replace(" ", "_");
             const filesize = file.size / 1024;
 
             //Checks if adding the file will take up more storage than the user has
@@ -163,12 +164,14 @@ module.exports = (dbObj) =>{
         const {account} = req.account;
         const {email, id} = account;
         const ogName = req.body.ogName;
-        const newName = req.body.newName;
+        let newName = req.body.newName;
 
         if(!email || !id || !ogName || !newName) {
             console.log("One or more required fields not provided!");
             return res.status(404).send("One or more required fields not provided!");
         }
+
+        newName = newName.replace(" ", "_");
 
         //1. Get filepath
         let sql = "SELECT path, date_added, ext, mimetype, file_size FROM UserMedia WHERE og_name = ? AND user_id = ?"
@@ -274,14 +277,18 @@ module.exports = (dbObj) =>{
         if(!id) return res.status(404).send("User not found");
 
         //Do query to get the file path
-        const sql = 'SELECT path, mimetype FROM UserMedia WHERE og_name = ? AND user_id = ?';
+        const sql = 'SELECT name, path, mimetype, ext FROM UserMedia WHERE og_name = ? AND user_id = ?';
 
-        db.get(sql, [filename, id], (err, row)=>{
+        db.get(sql, [filename, id], async (err, row)=>{
             if(err || !row) return console.error(err);
             filePath = row.path;
+            const stamped_filename = row.name;
+            const ext = row.ext;
             const mimetype = row.mimetype;
+            const mediaType = mimetype.split('/')[0];
 
-            if(isCompressed && mimetype.split('/')[0] === "image"){
+
+            if(isCompressed && mediaType === "image"){
                 //For resizing the image if it's supposed to be compressed
                 sharp(filePath)
                 .resize(640, 480)   //Output buffer is 360 x 480
@@ -293,11 +300,29 @@ module.exports = (dbObj) =>{
                     console.log(`${filename} sent as compressed!`);
                     return res.contentType(mimetype).send(buffer);
                 });
+            }else if(isCompressed && mediaType === "video"){
+                try{
+                    console.log('Going to try to downscale video');
+                    const downscaledPath = await conversion.downScaleVideo(filePath, stamped_filename, ext, "320");
+                    res.sendFile(downscaledPath, (err) =>{
+                        if (err) return console.error(err.message);
+                        fs.unlink(downscaledPath, (err) =>{
+                            if(err) return console.error("Temp file couldn't be deleted!");
+                            console.log('Temp file successfully deleted!');
+                        });                        
+                    });
+                }catch(err){
+                    console.error(err);
+                    res.sendFile(filePath, (err) =>{
+                        if (err) return res.status(500).end()/*.send('Error sending file');*/
+                        console.log(`${filename} File sent normally as there was an issue with downscaling!`);
+                    });
+                }
             }else{
                 //Send uncompressed
                 res.sendFile(filePath, (err) =>{
                     if (err) return res.status(500).end()/*.send('Error sending file');*/
-                    console.log(`${filename} File sent!`);
+                    console.log(`${filename} File sent normally without compression!!`);
                 });
             }
         });
