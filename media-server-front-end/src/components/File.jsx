@@ -71,7 +71,6 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
     const containerRef = useRef();
     const btnRef = useRef();
     const textRef = useRef();
-    const mediaRef = useRef(); 
 
     //State
     const [menuActive, setMenuActive] = useState(false);
@@ -135,7 +134,9 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                             }
                             {fileFormat.isVideo&&isSquare&&
                                 <>{fileURL ?
-                                    <video ref={mediaRef} className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>
+                                    <div className="videoWrapper size-full flex items-center justify-center">
+                                        <video className="size-fit overflow-hidden" src={fileURL} muted controls="controls" title={file.og_name}></video>
+                                    </div>
                                     :
                                     <LoadingIcons.TailSpin className="size-3/4 overflow-hidden" stroke="#000000" strokeOpacity={.75} speed={.75}/>
                                 }</>

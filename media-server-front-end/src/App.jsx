@@ -25,13 +25,15 @@ function App() {
   const SortEnum = Object.freeze({
     name: "og_name",
     ext: "ext",
-    fileSize: "file_size"
+    fileSize: "file_size",
+    mimetype: "mimetype"
   });
 
   const sortOptions = [
     {value: SortEnum.name, label: "By Name"}, 
     {value: SortEnum.ext, label: "By Ext"},
-    {value: SortEnum.fileSize, label: "By Size"}
+    {value: SortEnum.fileSize, label: "By Size"},
+    {value: SortEnum.mimetype, label: "By Format"}
   ];
 
   //Context
@@ -79,9 +81,27 @@ function App() {
   //For tracking changes in the fileSort state
   useEffect(() =>{
     if(!fileSort) return;
-    const sortedFiles = [...files].sort((file1, file2) =>(
-      file1[fileSort] - file2[fileSort]
-    ));
+    console.log(fileSort)
+    let sortedFiles;
+    if(fileSort === "mimetype"){
+      sortedFiles = [...files].sort((file1, file2) =>{
+        const f1Mime = file1[fileSort].split('/')[0];
+        const f2Mime = file2[fileSort].split('/')[0];
+        console.log(f1Mime, f2Mime);
+
+        return (f1Mime !== f2Mime) ? 
+          f1Mime.localeCompare(f2Mime) : file1.og_name.localeCompare(file2.og_name);
+      });
+      console.log(sortedFiles);
+    }else{
+      sortedFiles = [...files].sort((file1, file2) =>(
+        (typeof file1[fileSort] ==="string" && typeof file2[fileSort]==="string" ) ?
+        file1[fileSort].localeCompare(file2[fileSort]) 
+        :
+        file1[fileSort] - file2[fileSort]
+      ));
+    }
+    
     setRendererdFiles(sortedFiles);
   }, [files, fileSort]);
 
