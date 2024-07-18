@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = (dbObj) =>{
     const fs = require('fs');
     const db = dbObj.DB;
@@ -155,8 +157,58 @@ module.exports = (dbObj) =>{
         }
     };
 
+    //For renaming files
     const putMedia = async (req, res) =>{
+        console.log('Hit putMedia controller');
+        const {account} = req.account;
+        const {email, id} = account;
+        const ogName = req.body.ogName;
+        const newName = req.body.newName;
 
+        if(!email || !id || !ogName || !newName) 
+            return res.status(404).send("One or more required fields not provided!");
+
+        //1. Get filepath
+        let sql = "SELECT path, date_added, ext, mimetype, file_size FROM UserMedia WHERE og_name = ? AND user_id = ?"
+        let params = [ogName, id];
+        db.get(sql, params, (err, row) =>{
+            if(err) return res.status(404).send("File not found!");
+            const oldPath = row.path;
+            const date_added = row.date_added;
+            const ext = row.ext;
+            const mimetype = row.mimetype;
+            const file_size = row.file_size;
+
+            //2. Rename the file in the file system with an updated time stamp as well
+            const newFileName = Date.now() + "-" + newName;
+            const newPath = `/var/uploads/${email}/${newFileName}`;
+
+            fs.rename(oldPath, newPath, (err) =>{
+                if(err) return res.status(500).send("Error, couldn't delete file!");
+
+                //3. Update database with new filename and path
+                sql = 
+                `UPDATE UserMedia
+                SET path = ?, name = ?, og_name = ?
+                WHERE user_id = ? AND path = ?
+                `
+                params = [newPath, newFileName, newName, id, oldPath];
+                db.run(sql, params, (err)=>{
+                    if(err) return res.status(500).send("Something went wrong with updating your filename");
+                    //4. Return updated file
+                    res.json({
+                        user_id: id,
+                        name: newName,
+                        path: newPath,
+                        date_added: date_added,
+                        ext: ext,
+                        og_name: ogName,
+                        mimetype: mimetype,
+                        file_size: file_size
+                    });
+                });
+            });
+        });
     };
 
     const deleteMedia = async (req, res) =>{
@@ -170,8 +222,10 @@ module.exports = (dbObj) =>{
 
         //Do query to get the file path
         db.get(sql, params, (err, row)=>{
-            if(err) return console.error(err.message);
-            if(!row) return console.error("File not found!");
+            if(err || !row) {
+                console.error("File not found!");
+                return res.status(404).send('File not found!');
+            }
             const filePath = row.path;
             console.log(filePath);
             sql = 'DELETE FROM UserMedia WHERE user_id=? AND og_name=?';
@@ -190,7 +244,6 @@ module.exports = (dbObj) =>{
                     console.log(err);
                     res.status(500).send('Could not remove the specified file')
                 });
-
             });
         });
     }
