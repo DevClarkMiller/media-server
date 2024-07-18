@@ -12,6 +12,7 @@ module.exports = () =>{
                 command
                 .size(`${width}x?`)
                 .saveToFile(outputPath)
+                // .outputOptions('-preset', 'ultrafast')
                 .on('error', (err) => {
                     console.error('Error during ffmpeg process:', err);
                     reject(err);    //Passes error upwards
@@ -37,6 +38,7 @@ module.exports = () =>{
                 command
                 .audioCodec((ext !== 'ogg') ? 'libmp3lame' : 'libopus')
                 .audioBitrate(`${bitrate}k`)
+                // .outputOptions('-preset', 'ultrafast')
                 .save(outputPath)
                 .on('error', (err) => {
                     console.error('Error during ffmpeg process:', err);
@@ -46,7 +48,6 @@ module.exports = () =>{
                     console.log('Conversion is finished!');
                     resolve(outputPath);
                 })
-                //.run()
             }catch(err){
                 reject(err);
             }

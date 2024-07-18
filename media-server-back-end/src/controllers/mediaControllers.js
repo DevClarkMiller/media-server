@@ -92,7 +92,7 @@ module.exports = (dbObj) =>{
             if(!fileItem) return res.status(500).send("File not uploaded!");
 
             let file = fileItem?.file;
-            file.name = file.name.replace(" ", "_");
+            file.name = file.name.replaceAll(" ", "_");
             const filesize = file.size / 1024;
 
             //Checks if adding the file will take up more storage than the user has
