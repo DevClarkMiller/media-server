@@ -80,7 +80,6 @@ function App() {
   //For tracking changes in the fileSort state
   useEffect(() =>{
     if(!fileSort) return;
-    console.log(fileSort);
     const sortedFiles = [...files].sort((file1, file2) =>(
       file1[fileSort] - file2[fileSort]
     ));
