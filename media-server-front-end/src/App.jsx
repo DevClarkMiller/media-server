@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useReducer } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 //Components
@@ -14,6 +14,9 @@ import fetchAll from './functions/fetch';
 //Context
 import {LoginContext} from './context/LoginContext';
 import CreateAccount from './components/account/CreateAccount';
+
+//Reducers
+import { createURLReducer, INITIAL_STATE } from './reducers/createURLSReducer';
 
 export const FileContext = createContext();
 
@@ -38,6 +41,9 @@ function App() {
 
   //Context
   const {loggedIn, grabAccount} = useContext(LoginContext);
+
+  //Reducers
+  const [createdURLS, dispatchNewURL] = useReducer(createURLReducer, INITIAL_STATE);
 
   //State
   const [files, setFiles] = useState([]);
@@ -81,18 +87,14 @@ function App() {
   //For tracking changes in the fileSort state
   useEffect(() =>{
     if(!fileSort) return;
-    console.log(fileSort)
     let sortedFiles;
     if(fileSort === "mimetype"){
       sortedFiles = [...files].sort((file1, file2) =>{
         const f1Mime = file1[fileSort].split('/')[0];
         const f2Mime = file2[fileSort].split('/')[0];
-        console.log(f1Mime, f2Mime);
-
         return (f1Mime !== f2Mime) ? 
           f1Mime.localeCompare(f2Mime) : file1.og_name.localeCompare(file2.og_name);
       });
-      console.log(sortedFiles);
     }else{
       sortedFiles = [...files].sort((file1, file2) =>(
         (typeof file1[fileSort] ==="string" && typeof file2[fileSort]==="string" ) ?
@@ -105,9 +107,23 @@ function App() {
     setRendererdFiles(sortedFiles);
   }, [files, fileSort]);
 
+  const handleAddURL = (urlObj) =>{
+    dispatchNewURL({
+        type:"ADD_URL", 
+        payload: urlObj
+    });
+  }
+
+  const handleRemoveURL = (propname, value) =>{
+    dispatchNewURL({
+        type:"REMOVE_URL", 
+        payload:{ propname: propname, value: value }
+    });
+  }
+  
   return (
     <div className="App flex flex-col items-center bg-deepBlack h-screen min-h-screen gap-5 pt-5">
-      <FileContext.Provider value={{files, setFiles, search, setSearch, renderedFiles, setRendererdFiles, itemView, setItemView, fileSort, setFileSort, sortOptions}}>
+      <FileContext.Provider value={{files, setFiles, search, setSearch, renderedFiles, setRendererdFiles, itemView, setItemView, fileSort, setFileSort, sortOptions, createdURLS, handleAddURL, handleRemoveURL}}>
         <Header />
         <Routes>
           <Route path='/' element={<Content />}/>

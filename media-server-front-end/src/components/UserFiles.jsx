@@ -12,7 +12,7 @@ import fileDownload from 'js-file-download';
 
 const UserFiles = () =>{
     //Context
-    const { renderedFiles, setRenderedFiles, itemView, setFiles, files } = useContext(FileContext);
+    const { renderedFiles, setRenderedFiles, itemView, setFiles, files, createdURLS, setCreatedURLS, handleAddURL, handleRemoveURL } = useContext(FileContext);
 
     const downloadFile = async (filename, setDownloadState) =>{
         const trackDownloadProgress = (progressEvent) =>{
@@ -118,23 +118,38 @@ const UserFiles = () =>{
     const fetchFileURL = async (file, fileFormat, setFileURL) =>{
         if(!file || !fileFormat) return;
         if(fileFormat.hasContent){
-            const options = {
-                responseType: 'blob', // Set response type to blob for file download
-                headers: { 'Content-Type': 'application/json' },
-                withCredentials: true,
-                credentials: "include",
-            }
+            //1. Checks to see if this url has already been created 
+            let urlObj = createdURLS.find((urlItem) => urlItem.filename === file.og_name);
+            let url = urlObj?.url;
+            setFileURL(url);
+            if(!url){
+                const options = {
+                    responseType: 'blob', // Set response type to blob for file download
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true,
+                    credentials: "include",
+                }
+    
+                const response = await fetchAll.get("/media/download", {
+                    filename: file?.og_name,
+                    isCompressed: true
+                }, options);
+                if(response.status !== 200) return;
+                const blob = response.data;
+                url = window.URL.createObjectURL(blob); 
+                setFileURL(url);
 
-            const response = await fetchAll.get("/media/download", {
-                filename: file?.og_name,
-                isCompressed: true
-            }, options);
-            if(response.status !== 200) return;
-            const blob = response.data;
-            const url = window.URL.createObjectURL(blob); 
-            return setFileURL(url);
+                const urlObj ={
+                    filename: file?.og_name,
+                    url: url
+                }
+
+                handleAddURL(urlObj);
+            }
         }
     }
+
+    useEffect(() =>console.log(createdURLS), [createdURLS]);
     
     return(
         <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
