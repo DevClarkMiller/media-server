@@ -1,7 +1,7 @@
 import React from "react";
 
 const LabelInput = React.forwardRef((
-  { onChange, value, children, id, type, min, max, inputClassName, labelClassName, required, name, spanClassName }, ref
+  {onBlur, onChange, value, children, id, type, min, max, inputClassName, labelClassName, required, name, spanClassName, placeholder }, ref
 ) => {
   return (
     <span className={`col-flex-center gap-1 ${spanClassName}`}>
@@ -22,6 +22,8 @@ const LabelInput = React.forwardRef((
         min={min}
         max={max}
         required={required}
+        placeholder={placeholder}
+        onBlur={onBlur}
       />
     </span>
   );

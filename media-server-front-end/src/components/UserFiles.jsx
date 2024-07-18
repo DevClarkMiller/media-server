@@ -78,7 +78,13 @@ const UserFiles = () =>{
             credentials: "include",
         });
 
-        if(response.status != 200) return alert('Something went wrong when renaming your file!');
+        if(!response || response?.status > 204 || !response?.data) return alert('Something went wrong when renaming your file!');
+
+        //Change the old file details to the new info
+        let filesCpy = [...files];
+        const index = filesCpy.findIndex((file) => file.og_name === oldName);
+        filesCpy[index] = response.data;
+        setFiles(filesCpy);
     }
 
     //Func is placed up here for limited rendering
@@ -112,20 +118,18 @@ const UserFiles = () =>{
     
     return(
         <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
-            {renderedFiles&&
-                renderedFiles.map((file) =>(
-                    <File 
-                        checkOpacity={checkOpacity} 
-                        key={file.og_name} 
-                        downloadFile={downloadFile} 
-                        deleteFile={deleteFile} 
-                        renameFile={renameFile}
-                        itemView={itemView} 
-                        file={file}
-                        assignListeners={assignListeners}
-                    />
-                ))
-            }
+            {renderedFiles?.map((file) =>(
+                <File 
+                    checkOpacity={checkOpacity} 
+                    key={file.og_name} 
+                    downloadFile={downloadFile} 
+                    deleteFile={deleteFile} 
+                    renameFile={renameFile}
+                    itemView={itemView} 
+                    file={file}
+                    assignListeners={assignListeners}
+                />
+            ))}
         </div>
     );
 }

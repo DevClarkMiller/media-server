@@ -1,4 +1,4 @@
-import { useState, useMemo, createContext, useRef } from "react";
+import { useState, useMemo, createContext, useRef, useCallback, useEffect } from "react";
 
 //Components
 import BoxWrapper from "../mill-comps/components/BoxWrapper";
@@ -51,15 +51,38 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
     //State
     const [hovering, setHovering] = useState(false);
     const [editing, setEditing] = useState(false);
-    const [newFileName, setNewFileName] = useState("");
+    const [newFileName, setNewFileName] = useState(displayName);
     const [downloadProgress, setDownloadProgress] = useState(null); //For the progress bar
 
     //Refs
     const containerRef = useRef();
 
+    const checkToSet = () =>{
+        if(editing) return;
+        setHovering(true);
+    }
+
+    const checkUnSet = () =>{
+        if(editing) return;
+        setHovering(false);
+    }
+
+    //Memoized functions
+
+    const onRename = useCallback((e) =>{
+        e.preventDefault();
+        renameFile(file?.og_name, newFileName);
+    }, [file, newFileName]);
+
+    const onBlurInput = () =>{
+        setNewFileName(displayName);
+        setEditing(false);
+        setHovering(false);
+    }
+
     return(
-        <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile, assignListeners, renameFile, editing, setEditing, newFileName, setNewFileName}}>
-            <div ref={containerRef} className={`w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={() => setHovering(true)} onMouseLeave={() => setHovering(false)}>
+        <FileDetailContext.Provider value={{hovering, displayName, file, checkOpacity, downloadFile, setDownloadProgress, deleteFile, assignListeners, editing, setEditing, newFileName, setNewFileName, onRename, onBlurInput}}>
+            <div ref={containerRef} className={`w-64 ${isSquare ? "h-64" : "h-10"}`} onClick={checkToSet} onMouseLeave={checkUnSet}>
                 <BoxWrapper  className={`container flex items-center justify-center content-start fileTile !bg-appleGray shadow-md !p-2 text-center font-semibold size-full ${isSquare&&(isImage||isVideo||isAudio)&&"flex-col justify-between"}`}>
                     {!downloadProgress ?
                         <>

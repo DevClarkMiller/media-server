@@ -165,14 +165,20 @@ module.exports = (dbObj) =>{
         const ogName = req.body.ogName;
         const newName = req.body.newName;
 
-        if(!email || !id || !ogName || !newName) 
+        if(!email || !id || !ogName || !newName) {
+            console.log("One or more required fields not provided!");
             return res.status(404).send("One or more required fields not provided!");
+        }
 
         //1. Get filepath
         let sql = "SELECT path, date_added, ext, mimetype, file_size FROM UserMedia WHERE og_name = ? AND user_id = ?"
         let params = [ogName, id];
         db.get(sql, params, (err, row) =>{
-            if(err) return res.status(404).send("File not found!");
+            if(err || !row) {
+                console.error('Error when getting path');
+                console.log(row);
+                return res.status(404).send("File not found!");
+            }
             const oldPath = row.path;
             const date_added = row.date_added;
             const ext = row.ext;
@@ -184,7 +190,10 @@ module.exports = (dbObj) =>{
             const newPath = `/var/uploads/${email}/${newFileName}`;
 
             fs.rename(oldPath, newPath, (err) =>{
-                if(err) return res.status(500).send("Error, couldn't delete file!");
+                if(err) {
+                    console.error(err);
+                    return res.status(500).send("Error, couldn't delete file!");
+                }
 
                 //3. Update database with new filename and path
                 sql = 
@@ -194,8 +203,12 @@ module.exports = (dbObj) =>{
                 `
                 params = [newPath, newFileName, newName, id, oldPath];
                 db.run(sql, params, (err)=>{
-                    if(err) return res.status(500).send("Something went wrong with updating your filename");
+                    if(err) {
+                        console.error(err);
+                        return res.status(500).send("Something went wrong with updating your filename");
+                    }
                     //4. Return updated file
+                    console.log('Successfully renamed your file!');
                     res.json({
                         user_id: id,
                         name: newName,
