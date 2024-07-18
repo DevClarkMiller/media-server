@@ -58,7 +58,6 @@ function App() {
   //Once user becomes logged in, retrieve all of their files
   useEffect(() =>{
     if(!loggedIn) return;
-    console.log("Now going to get files!");
     const getFiles = async () =>{
         const response = await fetchAll.get('/media', null,
           {
@@ -84,7 +83,6 @@ function App() {
       file1[fileSort] - file2[fileSort]
     ));
     setRendererdFiles(sortedFiles);
-    console.log(sortedFiles);
   }, [files, fileSort]);
 
   return (

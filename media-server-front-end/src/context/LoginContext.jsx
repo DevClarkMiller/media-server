@@ -16,7 +16,6 @@ export const LoginProvider = ({children}) =>{
     const [account, setAccount] = useState(null);
 
     const grabAccount = async () =>{
-        console.log('Now grabbing account');
         const response = await fetchAll.get("/account", null, {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true,

@@ -23,7 +23,7 @@ const ViewOptions = ({itemView, setItemView}) =>{
     const selectedClass = "text-appleBlue hover:text-appleLighterBlue";
 
     return(
-        <div className="viewOptions w-3/4 flex items-center justify-between">
+        <div className="viewOptions w-3/4 col-flex-center gap-3 justify-between lg:flex-row">
             <Select 
                 placeholder="Sort By"
                 options={sortOptions} 

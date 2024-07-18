@@ -8,6 +8,7 @@ import LabelInput from "./utilities/LabelInput";
 import { IoCloudDownloadOutline, IoCloudDownload, IoTrashOutline, IoTrashSharp, IoCreateOutline, IoCreate } from "react-icons/io5";
 
 //Functions 
+import fetchAll from "../functions/fetch";
 
 export const FileDetailContext = createContext();
 
@@ -51,8 +52,6 @@ const FileControls = ({btnRef, btnClass, btnsShow }) =>{
 }
 
 const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignListeners, renameFile}) =>{
-    console.log('File rendered');
-
     //Memo calcs
     const fileType = useMemo(() => (
         file?.mimetype?.split('/')[0]
@@ -65,9 +64,47 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
         isAudio: fileType === "audio"
     }), [fileType]);
 
-    const fileURL = useMemo(() => { //This is needed in order to be able to preview the files
-        if(!file) return;
+    const isSquare = useMemo(() => (itemView==="square"), [itemView]);
+
+    //Refs
+    const containerRef = useRef();
+    const btnRef = useRef();
+    const textRef = useRef();
+    const mediaRef = useRef(); 
+
+    //State
+    const [menuActive, setMenuActive] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const [newFileName, setNewFileName] = useState(file?.og_name);
+    const [downloadProgress, setDownloadProgress] = useState(null); //For the progress bar
+    const [textClass, setTextClass] = useState("");
+    const [btnClass, setBtnClass] = useState("");
+    const [fileURL, setFileURL] = useState(null);
+
+    const btnsShow = useMemo(() => menuActive && !editing, [menuActive, editing]);
+
+    const fetchFileURL = async () =>{
+        if(!file || !fileFormat) return;
+        if(fileFormat.isVideo){
+            const options = {
+                responseType: 'blob', // Set response type to blob for file download
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true,
+                credentials: "include",
+            }
+
+            const response = await fetchAll.get("/media/download", {
+                filename: file?.og_name,
+                isCompressed: true
+            }, options);
+            if(response.status !== 200) return;
+            const blob = response.data;
+            const url = window.URL.createObjectURL(blob); 
+            return setFileURL(url);
+        }
+
         const baseUrl = `${process.env.REACT_APP_API_BASE}/media/download`;
+
         const options = {
             withCredentials: true,
             credentials: "include"
@@ -77,27 +114,13 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
             filename: file?.og_name,
             isCompressed: true
         }, options);
-        console.log("fileURL func called");
-        return `${baseUrl}?${queryParams.toString()}`;  //The url in which the file can be accessed
-    }, [file]);
+        setFileURL(`${baseUrl}?${queryParams.toString()}`);  //The url in which the file can be accessed
+    }
 
-    const isSquare = useMemo(() => (itemView==="square"), [itemView]);
+    useEffect(() =>{
+        fetchFileURL();
+    }, [file?.og_name, fileFormat]);
 
-    //State
-    const [menuActive, setMenuActive] = useState(false);
-    const [editing, setEditing] = useState(false);
-    const [newFileName, setNewFileName] = useState(file?.og_name);
-    const [downloadProgress, setDownloadProgress] = useState(null); //For the progress bar
-    const [textClass, setTextClass] = useState("");
-    const [btnClass, setBtnClass] = useState("");
-
-    const btnsShow = useMemo(() => menuActive && !editing, [menuActive, editing]);
-
-    //Refs
-    const containerRef = useRef();
-    const btnRef = useRef();
-    const textRef = useRef();
-    
     //Adds listeners to the transitioned property for the text and button when the component renders
     useEffect(() =>{ assignListeners(btnRef, textRef, setBtnClass, setTextClass); }, [btnRef, textRef]);
 
@@ -140,7 +163,7 @@ const File = ({checkOpacity, file, itemView, downloadFile, deleteFile, assignLis
                                 <img className="size-full overflow-hidden" src={fileURL} alt={file.og_name}></img>}
 
                             {fileFormat.isVideo&&isSquare&&fileURL&&
-                                <video className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
+                                <video ref={mediaRef} className="size-full overflow-hidden" src={fileURL} muted controls="controls" width="600" height="300" alt={file.og_name}></video>}
                                 
                             {fileFormat.isAudio&&isSquare&&fileURL&&
                                 <div className="size-full flex items-center justify-center flex-grow">

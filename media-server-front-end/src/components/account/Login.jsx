@@ -62,6 +62,7 @@ const Login = () =>{
                 <LabelInput 
                     ref={emailRef}
                     id="email"
+                    name="email"
                     spanClassName={`slow-trans off-to-side ${emailInView&& revealed}`}
                     inputClassName="round-input-black"
                     labelClassName="text-xl"
@@ -74,6 +75,7 @@ const Login = () =>{
                 <LabelInput 
                     ref={passwordRef}
                     id="password"
+                    name="password"
                     spanClassName={`slow-trans off-to-side-right ${passwordInView&& revealed}`}
                     inputClassName="round-input-black"
                     labelClassName="text-xl"
