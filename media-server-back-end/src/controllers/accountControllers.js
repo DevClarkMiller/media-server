@@ -222,12 +222,22 @@ module.exports = (dbObj) =>{
         res.status(200).send("You should now be logged out!");
     } 
 
+    const storageDetails = async (req, res) =>{
+        console.log('Hit storageDetails controller');
+
+        let sql = ` 
+        
+        `;
+
+    } 
+
     return{
         isUserAuth,
         login,
         deleteAccount,
         createAccount,
         signOut,
-        activateAccount
+        activateAccount,
+        storageDetails
     }
 }

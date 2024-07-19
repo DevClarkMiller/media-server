@@ -15,4 +15,7 @@ module.exports = (app, dbObj) =>{
     
     app.route("/account/signout")
         .delete(accountController.signOut);
+
+    app.route("/account/storage")
+        .get(accountController.storageDetails)
 }
