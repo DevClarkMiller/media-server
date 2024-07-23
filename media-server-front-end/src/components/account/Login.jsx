@@ -92,6 +92,7 @@ const Login = () =>{
                 className={`text-white round-button blue-button`}>
                     Login</button>
                 <Link to="/createAccount" className="link text-xl">Create Account</Link>
+                <Link to="/resetPassword" className="link text-xl">Reset Password</Link>
             </div>
         </form>
     );

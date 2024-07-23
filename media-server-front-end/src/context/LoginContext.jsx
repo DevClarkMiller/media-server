@@ -24,7 +24,7 @@ export const LoginProvider = ({children}) =>{
 
         if(!response || response.status !== 200){
             const path = location.pathname;
-            const shouldNav = !(path.includes("authenticate") || path.includes("login") || path.includes("createAccount"));
+            const shouldNav = !(path.includes("authenticate") || path.includes("login") || path.includes("createAccount") || path.includes("resetPassword") || path.includes("requestResetPassword"));
             console.log(shouldNav);
             if(location.pathname.includes)
             console.log(location.pathname);

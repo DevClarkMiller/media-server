@@ -12,6 +12,7 @@ module.exports = (dbObj) =>{
 
     //HTML Email Template paths
     const html_confirmation_path = './src/email-templates/account_confirmation.html';
+    const html_reset_path = './src/email-templates/password_reset.html'
 
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -54,6 +55,17 @@ module.exports = (dbObj) =>{
             text: "Thank you for signing up, to activate your account, please click the link",
             html: html_template
 
+        });
+        sendMail(transporter, mailOpts);
+    }
+
+    const mailPasswordReset = async (email, html_template) =>{
+        const mailOpts = createMailOptions({
+            name: 'drive.clarkmiller.ca',
+            subject: "Account password reset",
+            sendTo: email,
+            text: "You seem to have forgotten your password, accidents happen!",
+            html: html_template
         });
         sendMail(transporter, mailOpts);
     }
@@ -196,19 +208,19 @@ module.exports = (dbObj) =>{
 
                 const fullUrl = `${baseUrl}?${queryParams.toString()}`;
 
-                //Reads in the html
-                fs.readFile(path.resolve(html_confirmation_path), {encoding: 'utf-8'}, (err, html) =>{
-                    if(err) {
-                        console.log(path.resolve(html_confirmation_path));
-                        console.log(err);
-                        // console.error('Something went wrong when reading in the html');
-                    }else{
-                        const template = handlebars.compile(html);
-                        const confirmation_html = template({confirmation_url: fullUrl});
-                        mailAuthentication(email, confirmation_html);
-                        res.status(200).send("Email confirmation sent!");
-                    }
-                });
+                    //Reads in the html
+                    fs.readFile(path.resolve(html_confirmation_path), {encoding: 'utf-8'}, (err, html) =>{
+                        if(err) {
+                            console.log(path.resolve(html_confirmation_path));
+                            console.log(err);
+                            // console.error('Something went wrong when reading in the html');
+                        }else{
+                            const template = handlebars.compile(html);
+                            const confirmation_html = template({confirmation_url: fullUrl});
+                            mailAuthentication(email, confirmation_html);
+                            res.status(200).send("Email confirmation sent!");
+                        }
+                    });
             });
         }catch(error){
             console.error(error);
@@ -222,13 +234,90 @@ module.exports = (dbObj) =>{
         res.status(200).send("You should now be logged out!");
     } 
 
+    const resetPassword = async (req, res) =>{
+        console.log('Hit resetPassword controller');
+
+        const newPassword = req.body.newPassword;
+        const token = req.body.token;
+
+        if(!token) return res.status(404).send('Account token not provided!');
+        if(!newPassword) return res.status(404).send("You didn't provide a valid password");
+
+        try{
+            const {account} = await jwt.verify(token, process.env.JWT_SECRET);
+
+            const hashedPass = await bcrypt.hash(newPassword, salt);
+
+            if(!account || !account?.id) {
+                console.error('Link for password reset has expired!');
+                return res.status(410).send('Link for password reset has expired!');   //NOTE - GIVE USERS ABILITY TO GENERATE A NEW LINK!}
+            }
+            let sql = `
+            UPDATE User 
+            SET password = ?
+            WHERE id = ?;
+            `;
+
+            db.run(sql, [hashedPass, account.id], function(err){
+                if(err){
+                    res.status(404).send("Couldn't find account or something went wrong when trying to reset password!");
+                }else{
+                    console.log('Users password has been reset!');
+                    //Gives the user a token cookie upon account activation
+                    res.cookie("token", token, {
+                        httpOnly: true, //Prevents browser javascript from seeing the cookies
+                    });
+                    res.status(200).send("Your password has been successfully reset, don't forget it next time!");
+                }
+            });
+        }catch(err){
+            res.status(400).send('Token is malformed!');
+        }
+    }
+
+    const requestResetPassword = async (req, res) =>{
+        console.log('Hit requestResetPassword controller');
+
+        const email = req.query.email;
+
+        
+        if(!email) return res.status(404).send("Email not provided!");
+
+        let sql = 'SELECT id, email, password, first_name, last_name, account_status FROM User WHERE email = ?';
+
+        db.get(sql, [email], function(err, row){
+            if(err || !row || !row?.id) return res.status(400).send('Account not found!'); 
+            const token = jwt.sign({account: row}, process.env.JWT_SECRET, {expiresIn: "900s"});
+
+            const baseUrl = process.env.RESET_PASSWORD_BASE_URL;
+            const queryParams = new URLSearchParams({
+                token: token
+            });
+
+            const fullUrl = `${baseUrl}?${queryParams.toString()}`;
+
+            //Reads in the html
+            fs.readFile(path.resolve(html_reset_path), {encoding: 'utf-8'}, (err, html) =>{
+                if(err) {
+                    console.log(path.resolve(html_reset_path));
+                    console.log(err);
+                    // console.error('Something went wrong when reading in the html');
+                }else{
+                    const template = handlebars.compile(html);
+                    const html_password_reset = template({reset_url: fullUrl});
+                    mailPasswordReset(email, html_password_reset);
+                    res.status(200).send("Password reset email sent!");
+                }
+            });
+        });
+    }
+
     const storageDetails = async (req, res) =>{
         console.log('Hit storageDetails controller');
 
         let sql = ` 
-        
-        `;
 
+        `;
     } 
 
     return{
@@ -238,6 +327,8 @@ module.exports = (dbObj) =>{
         createAccount,
         signOut,
         activateAccount,
-        storageDetails
+        storageDetails,
+        requestResetPassword,
+        resetPassword
     }
 }

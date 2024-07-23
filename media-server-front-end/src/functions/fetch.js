@@ -40,7 +40,7 @@ const get = async (path, params, config = {}) =>{
         }else{
             simpleErrorOutput(err);
         }
-        return response;
+        return err.response;
     }
 }
 
@@ -55,7 +55,7 @@ const post = async (path, data, config) =>{
         }else{
             simpleErrorOutput(err);
         }
-        return response;
+        return err.response;
     }
 }
 
@@ -75,7 +75,7 @@ const del = async (path, params, config) =>{
         }else{
             simpleErrorOutput(err);
         }
-        return response;
+        return err.response;
     }
 }
 
@@ -90,7 +90,7 @@ const put = async (path, data, config) =>{
         }else{
             simpleErrorOutput(err);
         }
-        return response;
+        return err.response;
     }
 }
 

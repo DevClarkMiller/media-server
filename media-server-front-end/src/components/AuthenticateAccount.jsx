@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useContext } from "react";
+import { useMemo, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 //Components
@@ -44,7 +44,7 @@ const AuthenticateAccount = () =>{
         <>
             {token ?
             <form onSubmit={onSubmit} className="authenticateAccount size-full text-white col-flex-center justify-center gap-5">
-                <h2 className="font-semibold text-xl">To authenticate your account, please click the button below</h2>
+                <h2 className="font-semibold text-xl text-center">To authenticate your account, please click the button below</h2>
                 <button 
                     type="submit"
                     className={`text-white round-button blue-button`}>

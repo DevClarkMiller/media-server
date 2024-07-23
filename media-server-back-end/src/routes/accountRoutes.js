@@ -8,6 +8,9 @@ module.exports = (app, dbObj) =>{
         // .put(mediaController.putMedia) Add this for changing account details
         .delete(accountController.deleteAccount)
 
+    app.route('/account/forgot')
+        .get(accountController.requestResetPassword)
+        .post(accountController.resetPassword)
     
     app.route("/account/create")
         .post(accountController.createAccount)

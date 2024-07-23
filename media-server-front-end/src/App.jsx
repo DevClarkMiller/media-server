@@ -7,6 +7,8 @@ import Content from "./components/Content";
 import Login from './components/account/Login';
 import NotFound from './components/utilities/NotFound';
 import AuthenticateAccount from './components/AuthenticateAccount';
+import ResetPassword from './components/account/ResetPassword';
+import RequestPasswordReset from './components/account/RequestPasswordReset';
 
 //Functions
 import fetchAll from './functions/fetch';
@@ -97,7 +99,7 @@ function App() {
       });
     }else{
       sortedFiles = [...files].sort((file1, file2) =>(
-        (typeof file1[fileSort] ==="string" && typeof file2[fileSort]==="string" ) ?
+        (typeof file1[fileSort] ==="string" && typeof file2[fileSort]==="string") ?
         file1[fileSort].localeCompare(file2[fileSort]) 
         :
         file1[fileSort] - file2[fileSort]
@@ -130,6 +132,8 @@ function App() {
           <Route path='login' element={<Login />}/>
           <Route path='createAccount' element={<CreateAccount/>} />
           <Route path='authenticate' element={<AuthenticateAccount />} />
+          <Route path='resetPassword' element={<ResetPassword />}/>
+          <Route path='requestResetPassword' element={<RequestPasswordReset />}/>
           <Route path='*' element={<NotFound />}/>
         </Routes>
       </FileContext.Provider>
