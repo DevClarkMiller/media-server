@@ -124,7 +124,7 @@ const UserFiles = () =>{
     }
     
     return(
-        <div className="userFiles size-full flex-grow flex flex-wrap items-start content-start justify-start gap-3">
+        <div className="userFiles size-full flex-grow flex flex-wrap items-start content-start justify-center lg:justify-start gap-3">
             {renderedFiles?.map((file) =>(
                 <File 
                     key={file.og_name} 
