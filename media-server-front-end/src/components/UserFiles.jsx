@@ -4,7 +4,7 @@ import { useContext, useEffect, useCallback } from "react";
 import { FileContext } from "../App";
 
 //Components
-import File from "./File";
+import File from "./File/File";
 
 //Functions
 import fetchAll from '../functions/fetch';
@@ -14,7 +14,7 @@ const UserFiles = () =>{
     //Context
     const { renderedFiles, setRenderedFiles, itemView, setFiles, files, createdURLS, setCreatedURLS, handleAddURL, handleRemoveURL } = useContext(FileContext);
 
-    const downloadFile = async (filename, setDownloadState) =>{
+    const downloadFile = async (filename, setDownloadState, setMenuActive) =>{
         const trackDownloadProgress = (progressEvent) =>{
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             setDownloadState(percentCompleted / 100);
@@ -23,8 +23,10 @@ const UserFiles = () =>{
             if (percentCompleted === 100 && progressEvent.loaded === progressEvent.total) {
                 console.log("Download complete!");
                 setDownloadState(null); // Reset download state after completion
+                setMenuActive(false);   //Disables menu so that the filename displays again
             } else if (progressEvent.loaded === 0 && progressEvent.total === 0) {
                 setDownloadState(null); // Disables the download bar
+                setMenuActive(false);
             }
             //console.log(`Download progress: ${percentCompleted}%`);
         } 
@@ -53,6 +55,7 @@ const UserFiles = () =>{
 
         setTimeout(() =>{
             setDownloadState(null); // Disables the download bar
+            setMenuActive(false);
             console.log('Download complete!');
         }, [250]);
     }
@@ -84,35 +87,6 @@ const UserFiles = () =>{
         const index = filesCpy.findIndex((file) => file.og_name === oldName);
         filesCpy[index] = response.data;
         setFiles(filesCpy);
-    }
-
-    //Func is placed up here for limited rendering
-    const checkOpacity = (element, setClass) =>{
-        const computedStyle = window.getComputedStyle(element);
-        const opacityValue = computedStyle.getPropertyValue('opacity');
-        if(opacityValue === "0"){
-            setClass("size-0 max-h-0 max-w-0 select-none hover:cursor-default");
-        }else if(opacityValue === "1"){
-            setClass("");
-        }
-    }
-
-    const assignListeners = (btnRef, textRef, setBtnClass, setTextClass) =>{
-        const btnElem = btnRef.current;
-        const textElem = textRef.current;
-
-        if(!btnElem || !textElem) return;
-
-        checkOpacity(btnElem, setBtnClass);
-        checkOpacity(textElem, setTextClass);
-
-        btnElem.addEventListener('transitionend', (e) =>{
-            if (e.propertyName === 'opacity') checkOpacity(btnElem, setBtnClass);
-        });
-
-        textElem.addEventListener('transitionend', (e) =>{
-            if (e.propertyName === 'opacity') checkOpacity(textElem, setTextClass);
-        });
     }
 
     const fetchFileURL = async (file, fileFormat, setFileURL) =>{
@@ -148,21 +122,17 @@ const UserFiles = () =>{
             }
         }
     }
-
-    useEffect(() =>console.log(createdURLS), [createdURLS]);
     
     return(
-        <div className="userFiles flex flex-wrap items-start content-start justify-center gap-3">
+        <div className="userFiles size-full flex-grow flex flex-wrap items-start content-start justify-start gap-3">
             {renderedFiles?.map((file) =>(
                 <File 
-                    checkOpacity={checkOpacity} 
                     key={file.og_name} 
                     downloadFile={downloadFile} 
                     deleteFile={deleteFile} 
                     renameFile={renameFile}
                     itemView={itemView} 
                     file={file}
-                    assignListeners={assignListeners}
                     fetchFileURL={fetchFileURL}
                 />
             ))}

@@ -12,7 +12,7 @@ const Content = () =>{
     useEffect(() =>{mainRef.current.scrollTo(0, 0)}, []);
 
     return(
-        <main ref={mainRef} className="w-full p-5 flex flex-col items-center gap-5">
+        <main ref={mainRef} className="size-full p-5 col-flex-center flex-grow gap-5">
             <Menu />
             <UserFiles />
         </main>

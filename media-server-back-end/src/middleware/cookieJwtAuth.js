@@ -11,7 +11,7 @@ const cookieJwtAuth = async (req, res, next) =>{
         const nowUNIX = Math.floor(new Date().getTime() / 1000);    //Get current time in unix format
         const timeLeft = decodedToken.exp - nowUNIX;
 
-        if(timeLeft <= 60){ //If users token has less than a minute left, sign a new one
+        if(timeLeft <= 300){ //If users token has less than 5 minutes left, sign a new one
             const {account} = decodedToken; 
             const newToken = jwt.sign({account: account}, process.env.JWT_SECRET, {expiresIn: "900s"});
             res.cookie("token", newToken, {

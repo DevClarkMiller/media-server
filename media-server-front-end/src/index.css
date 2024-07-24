@@ -71,6 +71,24 @@
   .file-container{
     @apply flex items-center justify-center content-start !bg-appleGray shadow-md !p-2 text-center font-semibold size-full;
   }
+
+  .file-header-hide{
+    @apply blur-xl opacity-0 transform -translate-x-72;
+  }
+
+  /*Default view*/
+  .file-header-visible{
+    @apply blur-none opacity-100 transform translate-x-10;
+  }
+
+  /*Default view*/
+  .file-menu-hide{
+    @apply blur-xl transform translate-x-20 opacity-0;
+  }
+
+  .file-menu-visible{
+    @apply blur-none opacity-100 transform -translate-x-20;
+  }
 }
 
 body {
