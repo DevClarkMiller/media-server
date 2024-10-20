@@ -26,6 +26,10 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() =>{
+    console.log(`BACKEND ORIGIN IS: ${process.env.REACT_APP_API_BASE}`);
+  }, []);
+
   //Enums
   const SortEnum = Object.freeze({
     name: "og_name",

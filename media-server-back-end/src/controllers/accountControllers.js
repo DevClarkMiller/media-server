@@ -208,19 +208,19 @@ module.exports = (dbObj) =>{
 
                 const fullUrl = `${baseUrl}?${queryParams.toString()}`;
 
-                    //Reads in the html
-                    fs.readFile(path.resolve(html_confirmation_path), {encoding: 'utf-8'}, (err, html) =>{
-                        if(err) {
-                            console.log(path.resolve(html_confirmation_path));
-                            console.log(err);
-                            // console.error('Something went wrong when reading in the html');
-                        }else{
-                            const template = handlebars.compile(html);
-                            const confirmation_html = template({confirmation_url: fullUrl});
-                            mailAuthentication(email, confirmation_html);
-                            res.status(200).send("Email confirmation sent!");
-                        }
-                    });
+                //Reads in the html
+                fs.readFile(path.resolve(html_confirmation_path), {encoding: 'utf-8'}, (err, html) =>{
+                    if(err) {
+                        console.log(path.resolve(html_confirmation_path));
+                        console.log(err);
+                        // console.error('Something went wrong when reading in the html');
+                    }else{
+                        const template = handlebars.compile(html);
+                        const confirmation_html = template({confirmation_url: fullUrl});
+                        mailAuthentication(email, confirmation_html);
+                        res.status(200).send("Email confirmation sent!");
+                    }
+                });
             });
         }catch(error){
             console.error(error);

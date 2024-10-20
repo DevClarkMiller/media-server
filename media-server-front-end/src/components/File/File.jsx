@@ -45,9 +45,6 @@ const File = ({file, itemView, downloadFile, deleteFile, renameFile, fetchFileUR
         if(isSquare && !fileURL) fetchFileURL(file, fileFormat, setFileURL); 
     }, [file?.og_name, fileFormat, isSquare]);
 
-    //Adds listeners to the transitioned property for the text and button when the component renders
-    // useEffect(() =>{ assignListeners(btnRef, textRef, setBtnClass, setTextClass); }, [btnRef, textRef]);
-
     const checkToSet = () =>{
         if(editing) return;
         setMenuActive(true);
@@ -59,7 +56,6 @@ const File = ({file, itemView, downloadFile, deleteFile, renameFile, fetchFileUR
     }
 
     //Memoized functions
-
     const onRename = useCallback((e) =>{
         e.preventDefault();
         renameFile(file?.og_name, newFileName);

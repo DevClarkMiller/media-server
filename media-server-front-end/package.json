@@ -23,7 +23,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "push-build": "scp -r C:\\projects\\media-server\\media-server-front-end\\build\\* miller@10.0.0.182:/var/www/drive.clarkmiller.ca/html/",
+    "push-build": "",
     "start:dev": "env-cmd -f .env.development react-scripts start",
     "start:prod": "env-cmd -f .env.production react-scripts start",
     "build:dev": "env-cmd -f .env.development react-scripts build",

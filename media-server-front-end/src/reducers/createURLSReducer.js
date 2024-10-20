@@ -1,5 +1,3 @@
-import { act } from "react";
-
 export const INITIAL_STATE = [];
 
 export const createURLReducer = (state, action) =>{
