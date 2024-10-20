@@ -3,8 +3,6 @@ module.exports = (dbObj) =>{
     const db = dbObj.DB;
     const sharp = require('sharp');
     const conversion = require('../utilities/Conversion')();
-    const ffmpeg = require('fluent-ffmpeg');
-    const {PassThrough} = require('stream');
 
     //Gets crucial details about how much storage a user has left
     const checkStorageUsage = (userID) =>{
@@ -174,7 +172,7 @@ module.exports = (dbObj) =>{
         newName = newName.replaceAll(" ", "_");
 
         //1. Get filepath
-        let sql = "SELECT path, date_added, ext, mimetype, file_size FROM UserMedia WHERE og_name = ? AND user_id = ?"
+        let sql = "SELECT path, date_added, ext, mimetype, file_size FROM UserMedia WHERE og_name = ? AND user_id = ?";
         let params = [ogName, id];
         db.get(sql, params, (err, row) =>{
             if(err || !row) {
@@ -278,6 +276,32 @@ module.exports = (dbObj) =>{
         }catch(err){
             throw new Error(err);
         }
+    }
+
+    const downloadShared = async (req, res) =>{
+        console.log('Hit downloadShared controller');
+
+        if (!req.account) return res.status(404).send("Email or file not found");
+
+        const {account} = req.account;
+        const {email, id} = account;
+
+        const filename = req.query.filename;
+        const ownerEmail = req.query.ownerEmail;
+
+        //Do query to get the file path
+        const sql = 'SELECT name, path, mimetype, ext FROM UserMedia WHERE og_name = ? AND email = ?';
+        db.get(sql, [filename, id], async (err, row)=>{
+            if(err || !row) {
+                console.error(err);
+                return res.status(500).end();
+            }
+
+            res.sendFile(filePath, (err) =>{
+                if (err) return res.status(500).end()/*.send('Error sending file');*/
+                console.log(`${filename} File sent normally without compression!!`);
+            });
+        });
     }
 
     const downloadMedia = async (req, res) =>{
