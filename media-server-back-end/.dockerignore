@@ -1,0 +1,8 @@
+Dockerfile
+
+mediaserverimage.tar
+
+node_modules
+.gitignore
+.vscode
+.git

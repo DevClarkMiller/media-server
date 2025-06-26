@@ -7,7 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "push-prod": "C:\\projects\\media-server\\media-server-back-end\\push-prod.bat",
     "start:dev": "cross-env NODE_ENV=development node ./src/server.js",
-    "start:prod": "cross-env NODE_ENV=production node ./src/server.js"
+    "start:prod": "cross-env NODE_ENV=production node ./src/server.js",
+    "build:image": "docker build -t mediaserverimage .",
+    "save:image": "docker save -o mediaserverimage.tar mediaserverimage",
+    "deploy": "scp ./mediaserverimage.tar miller@10.0.0.212:/home/miller",
+    "deploy:full": "npm run build:image && npm run save:image && npm run deploy"
   },
   "keywords": [],
   "author": "Clark Miller",

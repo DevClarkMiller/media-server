@@ -9,9 +9,9 @@ module.exports = (app, dbObj/*, upload*/) =>{
         .delete(cookieJwtAuth, mediaController.deleteMedia);
 
     app.route('share')  // Route for shared files
-        .post(cookieJwtAuth, null)
+        .post(cookieJwtAuth)
         // Person accessing the shared media must have an account, this route downloads the file
-        .get(cookieJwtAuth, null);  
+        .get(cookieJwtAuth);  
 
     app.route('/media/download')
         .get(cookieJwtAuth, mediaController.downloadMedia);

@@ -11,6 +11,7 @@ node_modules/
 # server data
 uploads/
 media.db
+mediaserverimage.tar
 
 .env
 .env.development
