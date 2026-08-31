@@ -9,9 +9,7 @@
     "start:dev": "cross-env NODE_ENV=development node ./src/server.js",
     "start:prod": "cross-env NODE_ENV=production node ./src/server.js",
     "build:image": "docker build -t mediaserverimage .",
-    "save:image": "docker save -o mediaserverimage.tar mediaserverimage",
-    "deploy": "scp ./mediaserverimage.tar miller@10.0.0.212:/home/miller",
-    "deploy:full": "npm run build:image && npm run save:image && npm run deploy"
+    "save:image": "docker save -o mediaserverimage.tar mediaserverimage"
   },
   "keywords": [],
   "author": "Clark Miller",

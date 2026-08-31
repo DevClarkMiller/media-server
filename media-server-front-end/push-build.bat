@@ -1,1 +1,0 @@
-scp -r C:\projects\media-server\media-server-front-end\build\* miller@10.0.0.182:/var/www/drive.clarkmiller.ca/html/
